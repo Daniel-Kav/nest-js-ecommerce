@@ -7,9 +7,13 @@ import { PaymentsModule } from './payments/payments.module';
 import { CartModule } from './cart/cart.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { AuthModule } from './auth/auth.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { typeOrmConfig } from './config/db.config';
 
 @Module({
-  imports: [AuthModule, UsersModule, ProductsModule, CategoriesModule, OrdersModule, PaymentsModule, CartModule, ReviewsModule],
+  imports: [
+    TypeOrmModule.forRoot(typeOrmConfig),
+    AuthModule, UsersModule, ProductsModule, CategoriesModule, OrdersModule, PaymentsModule, CartModule, ReviewsModule],
   controllers: [],
   providers: [],
 })
