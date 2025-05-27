@@ -1,98 +1,369 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# E-Commerce Backend API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A comprehensive e-commerce backend built with NestJS, PostgreSQL, and modern best practices. This system provides a complete solution for online retail operations including user management, product catalog, order processing, and payment integration.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🚀 Features
 
-## Description
+### User Management
+- User registration and authentication
+- JWT-based authorization
+- Role-based access control (Admin/Customer)
+- Password encryption with bcrypt
+- Profile management
+- Email verification
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### Product Management
+- Product CRUD operations
+- Category management
+- Image upload and management
+- Stock tracking
+- Search and filtering
+- Product reviews and ratings
 
-## Project setup
+### Order Management
+- Shopping cart functionality
+- Order placement and tracking
+- Order status management
+- Order history
+- Invoice generation
 
+### Payment Processing
+- Multiple payment gateway integration (Stripe, PayPal)
+- Secure payment processing
+- Payment verification
+- Refund management
+
+### Admin Features
+- Dashboard with analytics
+- User management
+- Product management
+- Order management
+- Sales reports
+- Inventory tracking
+
+## 🛠 Tech Stack
+
+- **Framework**: NestJS
+- **Database**: PostgreSQL
+- **ORM**: TypeORM
+- **Authentication**: JWT
+- **File Upload**: Multer
+- **Validation**: class-validator
+- **Documentation**: Swagger/OpenAPI
+- **Testing**: Jest
+- **Docker**: Containerization support
+
+## 📋 Prerequisites
+
+- Node.js (v16 or higher)
+- PostgreSQL (v12 or higher)
+- npm or yarn
+- Docker (optional)
+
+## 🚀 Installation
+
+### Using npm
 ```bash
-$ pnpm install
+# Clone the repository
+git clone <repository-url>
+cd ecommerce-backend
+
+# Install dependencies
+npm install
+
+# Copy environment variables
+cp .env.example .env
+
+# Configure your database and other settings in .env
 ```
 
-## Compile and run the project
-
+### Using Docker
 ```bash
-# development
-$ pnpm run start
+# Clone the repository
+git clone <repository-url>
+cd ecommerce-backend
 
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+# Build and run with Docker Compose
+docker-compose up -d
 ```
 
-## Run tests
+## ⚙️ Environment Variables
 
-```bash
-# unit tests
-$ pnpm run test
+Create a `.env` file in the root directory:
 
-# e2e tests
-$ pnpm run test:e2e
+```env
+# Database
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USERNAME=postgres
+DATABASE_PASSWORD=password
+DATABASE_NAME=ecommerce_db
 
-# test coverage
-$ pnpm run test:cov
+# JWT
+JWT_SECRET=your-super-secret-jwt-key
+JWT_EXPIRATION=24h
+
+# File Upload
+UPLOAD_DEST=./uploads
+MAX_FILE_SIZE=5242880
+
+# Payment Gateways
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+PAYPAL_CLIENT_ID=your-paypal-client-id
+PAYPAL_CLIENT_SECRET=your-paypal-client-secret
+
+# Email
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+
+# Redis (for caching)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# Application
+PORT=3000
+NODE_ENV=development
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## 🗄️ Database Setup
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+# Run migrations
+npm run migration:run
+
+# Seed initial data
+npm run seed
+
+# Generate new migration
+npm run migration:generate -- -n MigrationName
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## 🏃‍♂️ Running the Application
 
-## Resources
+```bash
+# Development
+npm run start:dev
 
-Check out a few resources that may come in handy when working with NestJS:
+# Production
+npm run build
+npm run start:prod
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+# Debug mode
+npm run start:debug
+```
 
-## Support
+## 📚 API Documentation
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Once the application is running, you can access:
 
-## Stay in touch
+- **Swagger UI**: http://localhost:3000/api/docs
+- **API JSON**: http://localhost:3000/api/docs-json
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## 🧪 Testing
 
-## License
+```bash
+# Unit tests
+npm run test
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+# E2E tests
+npm run test:e2e
+
+# Test coverage
+npm run test:cov
+
+# Watch mode
+npm run test:watch
+```
+
+## 📁 Project Structure
+
+```
+src/
+├── auth/                 # Authentication module
+├── users/               # User management
+├── products/            # Product management
+├── categories/          # Category management
+├── orders/              # Order management
+├── payments/            # Payment processing
+├── cart/                # Shopping cart
+├── reviews/             # Product reviews
+├── common/              # Shared utilities
+│   ├── decorators/      # Custom decorators
+│   ├── filters/         # Exception filters
+│   ├── guards/          # Auth guards
+│   ├── interceptors/    # Request/Response interceptors
+│   └── pipes/           # Validation pipes
+├── config/              # Configuration files
+├── database/            # Database configuration
+│   ├── migrations/      # Database migrations
+│   └── seeds/           # Database seeders
+└── uploads/             # File uploads directory
+```
+
+## 🔐 Authentication & Authorization
+
+### Authentication Flow
+1. User registers/logs in
+2. Server returns JWT token
+3. Client includes token in Authorization header
+4. Server validates token for protected routes
+
+### Roles
+- **ADMIN**: Full system access
+- **CUSTOMER**: Limited to customer operations
+
+### Protected Routes
+Use the `@UseGuards(JwtAuthGuard)` decorator for authentication and `@Roles()` decorator for authorization.
+
+## 📊 API Endpoints
+
+### Authentication
+- `POST /auth/register` - User registration
+- `POST /auth/login` - User login
+- `POST /auth/refresh` - Refresh token
+- `POST /auth/logout` - User logout
+
+### Users
+- `GET /users/profile` - Get user profile
+- `PUT /users/profile` - Update user profile
+- `POST /users/change-password` - Change password
+
+### Products
+- `GET /products` - Get products (with pagination, search, filters)
+- `GET /products/:id` - Get product by ID
+- `POST /products` - Create product (Admin only)
+- `PUT /products/:id` - Update product (Admin only)
+- `DELETE /products/:id` - Delete product (Admin only)
+
+### Categories
+- `GET /categories` - Get all categories
+- `GET /categories/:id` - Get category by ID
+- `POST /categories` - Create category (Admin only)
+- `PUT /categories/:id` - Update category (Admin only)
+- `DELETE /categories/:id` - Delete category (Admin only)
+
+### Cart
+- `GET /cart` - Get user's cart
+- `POST /cart/items` - Add item to cart
+- `PUT /cart/items/:id` - Update cart item
+- `DELETE /cart/items/:id` - Remove item from cart
+- `DELETE /cart` - Clear cart
+
+### Orders
+- `GET /orders` - Get user's orders
+- `GET /orders/:id` - Get order by ID
+- `POST /orders` - Create order
+- `PUT /orders/:id/status` - Update order status (Admin only)
+
+### Payments
+- `POST /payments/stripe/create-intent` - Create Stripe payment intent
+- `POST /payments/stripe/webhook` - Stripe webhook
+- `POST /payments/paypal/create-order` - Create PayPal order
+- `POST /payments/paypal/capture` - Capture PayPal payment
+
+## 🔧 Configuration
+
+### Database Configuration
+Configure your database connection in `src/config/database.config.ts`
+
+### JWT Configuration
+JWT settings are in `src/config/jwt.config.ts`
+
+### File Upload Configuration
+File upload settings in `src/config/multer.config.ts`
+
+## 🐳 Docker Support
+
+```yaml
+# docker-compose.yml
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_HOST=db
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: ecommerce_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
+```
+
+## 🚀 Deployment
+
+### Using PM2
+```bash
+npm install -g pm2
+npm run build
+pm2 start dist/main.js --name ecommerce-api
+```
+
+### Using Docker
+```bash
+docker build -t ecommerce-backend .
+docker run -p 3000:3000 ecommerce-backend
+```
+
+## 📈 Performance Optimization
+
+- **Caching**: Redis integration for frequently accessed data
+- **Database Indexing**: Proper indexes on frequently queried columns
+- **Pagination**: Implemented on all list endpoints
+- **Image Optimization**: Automatic image resizing and compression
+- **Rate Limiting**: Protection against abuse
+
+## 🔒 Security Features
+
+- **JWT Authentication**: Secure token-based authentication
+- **Password Hashing**: bcrypt for password security
+- **Input Validation**: class-validator for request validation
+- **SQL Injection Protection**: TypeORM parameterized queries
+- **CORS Configuration**: Proper CORS setup
+- **Rate Limiting**: Protection against brute force attacks
+- **Helmet**: Security headers
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 📞 Support
+
+For support, email support@example.com or create an issue in the repository.
+
+## 🗺️ Roadmap
+
+- [ ] Multi-vendor support
+- [ ] Advanced analytics
+- [ ] Mobile app API optimization
+- [ ] GraphQL API
+- [ ] Microservices architecture
+- [ ] Real-time notifications
+- [ ] Advanced search with Elasticsearch
