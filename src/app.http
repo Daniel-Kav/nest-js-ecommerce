@@ -1,6 +1,6 @@
-@baseUrl = http://localhost:3000
+@baseUrl = http://localhost:3000/api
 
-GET {{baseUrl}}
+GET {{baseUrl}}/users
 
 ###
-POST  {{baseUrl}}/auth/login
+POST  {{baseUrl}}
