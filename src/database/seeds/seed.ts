@@ -8,7 +8,6 @@ import { Review } from '../../reviews/entities/review.entity';
 import { Payment } from '../../payments/entities/payment.entity';
 import { Cart } from '../../cart/entities/cart.entity';
 import { CartItem } from '../../cart/entities/cart-item.entity';
-import { typeOrmConfig } from '../../config/db.config';
 import { faker } from '@faker-js/faker';
 import { UserRole } from '../../common/enums/user-role.enum';
 import { PaymentStatus } from '../../common/enums/payment-status.enum';
@@ -28,7 +27,7 @@ async function seed() {
     entities: [User, Category, Product, Order, OrderItem, Review, Payment, Cart, CartItem],
     synchronize: true, // or true if you want to sync in dev
   });
-  console.log('DB password:', process.env.DATABASE_PASSWORD);
+  // console.log('DB password:', process.env.DATABASE_PASSWORD);
   await dataSource.initialize();
 
   // --- Seed Categories ---
