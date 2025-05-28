@@ -1,26 +1,69 @@
 import { Injectable } from '@nestjs/common';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Review } from './entities/review.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ReviewsService {
+  constructor(
+    @InjectRepository(Review)
+    private reviewRepository: Repository<Review>,
+  ) {}
   create(createReviewDto: CreateReviewDto) {
-    return 'This action adds a new review';
+    return this.reviewRepository.save(createReviewDto);
   }
 
   findAll() {
-    return `This action returns all reviews`;
+    return this.reviewRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} review`;
-  }
+  // async findOne(id: number) {
+  //   const review = await this.reviewRepository.findOne({
+  //     where: { id },
+  //     relations: ['user'],
+  //   });
+  //   if (!review) return null;
+  //   // Only include the user's email
+  //   const { user, ...rest } = review as any;
+  //   return {
+  //     ...rest,
+  //     user: user ? { email: user.email } : null,
+  //   };
+  // }
+
+async findOne(id: number) {
+  return this.reviewRepository.findOne({
+    where: { id },
+    relations: {
+      user: true,
+      product: true,
+      // Add more relations as needed
+      // order: true,
+      // category: true,
+    },
+    select: {
+      user: {
+        id: true,
+        email: true,
+        // Add more user fields as needed
+      },
+      product: {
+        id: true,
+        name: true,
+        price: true,
+        // Add more product fields as needed
+      }
+    }
+  });
+}
 
   update(id: number, updateReviewDto: UpdateReviewDto) {
-    return `This action updates a #${id} review`;
+    return this.reviewRepository.update(id, updateReviewDto);
   }
 
   remove(id: number) {
-    return `This action removes a #${id} review`;
+    return this.reviewRepository.delete(id);
   }
 }
