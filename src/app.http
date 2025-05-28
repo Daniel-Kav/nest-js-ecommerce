@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:5000/api
 
-GET {{baseUrl}}/reviews/re
+GET {{baseUrl}}/reviews/3
 
 ###
 POST  {{baseUrl}}/users
