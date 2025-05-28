@@ -1,13 +1,16 @@
-@baseUrl = http://localhost:3000/api
+@baseUrl = http://localhost:5000/api
 
-GET {{baseUrl}}/users
+GET {{baseUrl}}/reviews/re
 
 ###
-POST  {{baseUrl}}
+POST  {{baseUrl}}/users
 Content-Type: application/json
 
 {
-    "name": "John Doe",
-    "AGE": 30,
-    "createdAt": "2023-04-25"
+    "email": "test@example.com",
+    "password": "SecurePassword123!",
+    "firstName": "John",
+    "lastName": "Doe",
+    "phone": "123-456-7890"
+    
 }
