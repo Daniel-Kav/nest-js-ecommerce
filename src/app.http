@@ -1,16 +1,41 @@
 @baseUrl = http://localhost:5000/api
 
-GET {{baseUrl}}/reviews/3
+GET {{baseUrl}}/users
 
 ###
-POST  {{baseUrl}}/users
+POST  {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+    "email": "test2@example.com",
+    "password": "SecurePassword123!",
+    "firstName": "Daniel",
+    "lastName": "Kavatha",
+    "phone": "123-456-7890"
+    
+}
+
+###
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "Raymond_Walsh@yahoo.com",
+    "password": "password123"
+}
+###
+PATCH   {{baseUrl}}/users/12
+Content-Type: application/json
+
+{
+    "email": "edittest@example.com"
+    
+}
+###
+POST {{baseUrl}}/users/login
 Content-Type: application/json
 
 {
     "email": "test@example.com",
-    "password": "SecurePassword123!",
-    "firstName": "John",
-    "lastName": "Doe",
-    "phone": "123-456-7890"
-    
+    "password": "SecurePassword123!"
 }
