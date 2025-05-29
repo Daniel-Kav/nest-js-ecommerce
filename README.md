@@ -65,7 +65,7 @@ A comprehensive e-commerce backend built with NestJS, PostgreSQL, and modern bes
 ### Using npm
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/Daniel-Kav/nest-js-ecommerce
 cd ecommerce-backend
 
 # Install dependencies
@@ -80,7 +80,7 @@ cp .env.example .env
 ### Using Docker
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/Daniel-Kav/nest-js-ecommerce
 cd ecommerce-backend
 
 # Build and run with Docker Compose
@@ -367,3 +367,25 @@ For support, email support@example.com or create an issue in the repository.
 - [ ] Microservices architecture
 - [ ] Real-time notifications
 - [ ] Advanced search with Elasticsearch
+
+## 🗄️ Database Schema
+
+The application's data is stored in a PostgreSQL database, structured around the following key entities and their relationships, managed using TypeORM.
+
+Below is a visual representation of the database structure:
+
+![E-commerce Database ER Diagram](ecommerce-erd.png)
+
+**Key Tables:**
+
+*   **`users`**: Stores user account information, including authentication details and roles.
+*   **`categories`**: Manages product categories to organize the product catalog.
+*   **`products`**: Contains details about the items available for sale, linked to categories.
+*   **`orders`**: Records customer orders, including shipping/billing addresses and overall status.
+*   **`order_items`**: Details the specific products and quantities within each order.
+*   **`reviews`**: Stores customer feedback and ratings for products.
+*   **`payments`**: Tracks payment transactions associated with orders.
+*   **`carts`**: Represents users' shopping carts.
+*   **`cart_items`**: Lists the products and quantities in each shopping cart.
+
+The relationships between these tables, such as a User having many Orders, an Order having many OrderItems, and OrderItems linking Products and Orders, are defined to ensure data integrity and facilitate efficient querying.

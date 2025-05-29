@@ -3,6 +3,9 @@
 /node_modules
 /build
 
+db.config.ts
+db.config.js
+
 # Logs
 logs
 *.log

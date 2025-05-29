@@ -15,6 +15,7 @@ import { typeOrmConfig } from './config/db.config';
     TypeOrmModule.forRoot(typeOrmConfig),
     AuthModule, UsersModule, ProductsModule, CategoriesModule, OrdersModule, PaymentsModule, CartModule, ReviewsModule],
   controllers: [],
-  providers: [],
+  providers: [      
+  ],
 })
 export class AppModule {}
