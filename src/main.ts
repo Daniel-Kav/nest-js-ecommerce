@@ -30,9 +30,9 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
-
-  await app.listen(process.env.PORT ?? 3000);
   const host = '0.0.0.0'; // Listen on all network interfaces
+
+  await app.listen(process.env.PORT ?? 3000, host);
   console.log(`Application is running on: ${await app.getUrl()}`)
 }
 bootstrap();
