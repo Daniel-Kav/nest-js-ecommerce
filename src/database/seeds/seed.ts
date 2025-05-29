@@ -26,6 +26,9 @@ async function seed() {
     database: process.env.DATABASE_NAME,
     entities: [User, Category, Product, Order, OrderItem, Review, Payment, Cart, CartItem],
     synchronize: true, // or true if you want to sync in dev
+    ssl: {
+      rejectUnauthorized: true,
+    },
   });
   // console.log('DB password:', process.env.DATABASE_PASSWORD);
   await dataSource.initialize();
