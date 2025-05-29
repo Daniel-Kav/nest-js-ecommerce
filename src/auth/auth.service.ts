@@ -23,7 +23,6 @@ export class AuthService {
   }
   async login(loginDto: LoginUserDto) {
     const user = await this.usersService.findByEmail(loginDto.email);
-    console.log(user)
     if (!user || !(await user.comparePassword(loginDto.password))) {
       throw new UnauthorizedException('Invalid credentials !!😁');
     }
