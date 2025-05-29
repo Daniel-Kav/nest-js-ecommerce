@@ -11,5 +11,10 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
   autoLoadEntities: true,
-  synchronize: true, // Set to true only in development!
-};  
+  synchronize: true,
+  // configure SSL options
+  ssl: {
+    rejectUnauthorized: true, // set to true if you want to reject unauthorized connections
+  },
+}; 
+

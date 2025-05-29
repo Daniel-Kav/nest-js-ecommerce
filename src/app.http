@@ -1,6 +1,8 @@
 @baseUrl = http://localhost:5000/api
+@bearetoken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEwLCJlbWFpbCI6IlJheW1vbmRfV2Fsc2hAeWFob28uY29tIiwicm9sZSI6IkNVU1RPTUVSIiwiaWF0IjoxNzQ4NTAyMzg3LCJleHAiOjE3NDg1ODg3ODd9.yN31HNG484nAW4P1B454FpwnsftvN94vBtbGXZwSLnE
 
 GET {{baseUrl}}/users
+Authorization: Bearer {{bearetoken}}
 
 ###
 POST  {{baseUrl}}/auth/register
