@@ -16,7 +16,20 @@ export class ReviewsService {
   }
 
   findAll() {
-    return this.reviewRepository.find();
+    return this.reviewRepository.find({
+      relations: ['user', 'product'],
+      select: {
+        product: {
+          id: true,
+          name: true,
+          price: true
+        },
+        user: {
+          id: true,
+          email: true
+        }
+      }
+    });
   }
 
   // async findOne(id: number) {
