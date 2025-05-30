@@ -13,27 +13,25 @@ export class ProductsService {
     @InjectRepository(Product)
     private productsRepository: Repository<Product>,
   ) {}
-  create(createProductDto: CreateProductDto) {
+
+  async create(createProductDto: CreateProductDto): Promise<Product> {
     return this.productsRepository.save(createProductDto);
   }
 
   async findAll(queryDto: FindAllProductsDto): Promise<Product[]> {
     const { search, categoryId, minPrice, maxPrice, sortBy, sortOrder, limit, offset } = queryDto;
-
     const findOptions: FindManyOptions<Product> = {
       where: {},
       order: {},
       take: limit,
       skip: offset,
     };
-
     if (search) {
       findOptions.where = [
         { name: Like(`%${search}%`) },
         { description: Like(`%${search}%`) },
       ];
     }
-
     if (categoryId) {
       if (Array.isArray(findOptions.where)) {
         findOptions.where = findOptions.where.map(condition => ({ ...condition, categoryId: categoryId }));
@@ -41,7 +39,6 @@ export class ProductsService {
         findOptions.where = { ...findOptions.where, categoryId: categoryId };
       }
     }
-
     if (minPrice !== undefined && maxPrice !== undefined) {
       if (Array.isArray(findOptions.where)) {
         findOptions.where = findOptions.where.map(condition => ({ ...condition, price: Between(minPrice, maxPrice) }));
@@ -61,21 +58,17 @@ export class ProductsService {
         findOptions.where = { ...findOptions.where, price: LessThanOrEqual(maxPrice) };
       }
     }
-
     if (sortBy && findOptions.order) {
       findOptions.order[sortBy] = sortOrder;
     } else if (findOptions.order) {
       findOptions.order = { createdAt: 'DESC' };
     }
-
     const whereIsEmpty = findOptions.where === undefined ||
                          (Array.isArray(findOptions.where) && findOptions.where.length === 0) ||
                          (!Array.isArray(findOptions.where) && Object.keys(findOptions.where).length === 0);
-
     if (whereIsEmpty) {
         delete findOptions.where;
     }
-
     return this.productsRepository.find(findOptions);
   }
 
@@ -87,11 +80,11 @@ export class ProductsService {
     return product;
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return this.productsRepository.update(id, updateProductDto);
+  async update(id: number, updateProductDto: UpdateProductDto): Promise<void> {
+    await this.productsRepository.update(id, updateProductDto);
   }
 
-  remove(id: number) {
-    return this.productsRepository.delete(id);
+  async remove(id: number): Promise<void> {
+    await this.productsRepository.delete(id);
   }
 }

@@ -1,112 +1,276 @@
 @baseUrl = http://localhost:5000/api
 @deployedUrl =https://nest-js-ecommerce.onrender.com/api
-@bearetoken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEwLCJlbWFpbCI6IlJheW1vbmRfV2Fsc2hAeWFob28uY29tIiwicm9sZSI6IkNVU1RPTUVSIiwiaWF0IjoxNzQ4NTAyMzg3LCJleHAiOjE3NDg1ODg3ODd9.yN31HNG484nAW4P1B454FpwnsftvN94vBtbGXZwSLnE
+@bearetoken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE3LCJlbWFpbCI6InRlc3Q2QGV4YW1wbGUuY29tIiwicm9sZSI6IkNVU1RPTUVSIiwiaWF0IjoxNzQ4NTg3NTk1LCJleHAiOjE3NDg2NzM5OTV9.4txwWl1V2mhxTfoi-xdfNK1Q02gqgWftNau4z1zSOGk
+@adminToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDg1ODcwODUsImV4cCI6MTc0ODY3MzQ4NX0.AAZMqTU_klZiv0MX9vzb9YgQqbyOH9-UyyymB46TrSw
 
-GET {{deployedUrl}}/users
-Authorization: Bearer {{bearetoken}}
+#########################################################################
+                AUTH ENDPOINTS
+##########################################################################
 
-###
-GET {{deployedUrl}}/reviews/10
-Authorization: Bearer {{bearetoken}}
-
-
-###
+### Register a new user
 POST  {{deployedUrl}}/auth/register
 Content-Type: application/json
 
 {
-    "email": "test5@example.com",
+    "email": "test6@example.com",
     "password": "SecurePassword123!",
-    "firstName": "Daniel",
-    "lastName": "Kavatha"
-}
-###
-PATCH   {{baseUrl}}/users/12
-Content-Type: application/json
-
-{
-    "email": "Hyatt@yahoo.com"
+    "firstName": "Test",
+    "lastName": "User"
 }
 
-###
-DELETE {{baseUrl}}/users/15
-Authorization: Bearer {{bearetoken}}
-
-###
+### Login a user (Customer)
 POST {{deployedUrl}}/auth/login
 Content-Type: application/json
 
 {
-    "email": "test5@example.com",
+    "email": "test6@example.com",
     "password": "SecurePassword123!"
 }
-###
-PATCH   {{baseUrl}}/users/12
+
+### Login an Admin
+POST {{deployedUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "admin@example.com",
+    "password": "admin123"
+}
+
+#########################################################################
+                USER ENDPOINTS
+##########################################################################
+
+### Get all users (ADMIN only)
+GET {{deployedUrl}}/users
+Authorization: Bearer {{adminToken}}
+
+### Get all users with search and pagination (ADMIN only)
+GET {{deployedUrl}}/users?search=test&limit=5&offset=0
+Authorization: Bearer {{adminToken}}
+
+### Get a specific user by ID (Authenticated user - their own or ADMIN/STAFF)
+GET {{deployedUrl}}/users/10
+Authorization: Bearer {{bearetoken}}
+
+### Get a specific user by ID (ADMIN/STAFF accessing another user)
+GET {{deployedUrl}}/users/10
+Authorization: Bearer {{adminToken}}
+
+### Update a user (Authenticated user - their own)
+PATCH   {{baseUrl}}/users/10
 Content-Type: application/json
 Authorization: Bearer {{bearetoken}}
 
 {
-    "email": "edittest@example.com"
-    
+    "firstName": "UpdatedFirstName"
 }
-###
-POST {{baseUrl}}/users/login
+
+### Update a user (ADMIN/STAFF updating another user)
+PATCH   {{baseUrl}}/users/10
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+    "email": "updated_test10@example.com",
+    "role": "ADMIN"
+}
+
+### Delete a user (ADMIN/STAFF only - use with caution!)
+DELETE {{baseUrl}}/users/11
+Authorization: Bearer {{adminToken}}
+
+#########################################################################
+                REVIEWS ENDPOINTS
+##########################################################################
+
+### Get all reviews (ADMIN only)
+GET {{deployedUrl}}/reviews
+Authorization: Bearer {{adminToken}}
+
+### Get all reviews with search and filtering (ADMIN only)
+GET {{deployedUrl}}/reviews?search=great&productId=1&minRating=4
+Authorization: Bearer {{adminToken}}
+
+### Get a specific review by ID
+GET {{deployedUrl}}/reviews/10
+
+### Create a review (Authenticated user)
+POST {{baseUrl}}/reviews
+Authorization: Bearer {{bearetoken}}
 Content-Type: application/json
 
 {
-    "email": "test@example.com",
-    "password": "SecurePassword123!"
+  "productId": 1,
+  "rating": 5,
+  "comment": "This is a great product!"
 }
 
-###
-GET {{baseUrl}}/reviews
+### Update a review (Review owner or ADMIN/STAFF)
+PATCH {{baseUrl}}/reviews/1
+Authorization: Bearer {{bearetoken}}
+Content-Type: application/json
+
+{
+  "comment": "Updated review comment.",
+  "rating": 4
+}
+
+### Delete a review (Review owner or ADMIN/STAFF)
+DELETE {{baseUrl}}/reviews/1
 Authorization: Bearer {{bearetoken}}
 
-###
-GET {{baseUrl}}/products/21
-Authorization: Bearer {{bearetoken}}
+#########################################################################
+                PRODUCTS ENDPOINTS
+##########################################################################
 
-###
+### Get all products (Public)
+GET {{deployedUrl}}/products
+
+### Get all products with search and filtering (Public)
+GET {{deployedUrl}}/products?search=at
+
+### Get a specific product by ID (Public)
+GET {{deployedUrl}}/products/21
+
+### Create a product (ADMIN/STAFF only)
 POST {{baseUrl}}/products
-Authorization: Bearer {{bearetoken}}
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 
 {
-  "name": "Laptop Pro",
-  "description": "High-performance laptop for professionals.",
-  "price": 120,
-  "stockQuantity": 75,
+  "name": "Gaming Mouse",
+  "description": "High precision gaming mouse.",
+  "price": 50,
+  "stockQuantity": 100,
   "images": [
-        "URL_ADDRESS.com/laptop1.jpg",
+        "URL_ADDRESS.com/mouse1.jpg",
+        "URL_ADDRESS.com/mouse2.jpg"
   ],
-  "sku": "LAPP-2025-002",
+  "sku": "GM-2025-001",
   "isActive": true,
-  "categoryId": 2
+  "categoryId": 1
 }
 ###
 
-###
+### Update a product (ADMIN/STAFF only)
 PATCH {{baseUrl}}/products/21
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "price": 55,
+  "stockQuantity": 90
+}
+
+### Delete a product (ADMIN/STAFF only)
+DELETE {{baseUrl}}/products/21
+Authorization: Bearer {{adminToken}}
+
+#########################################################################
+                CATEGORIES ENDPOINTS
+##########################################################################
+
+### Get all categories (Public)
+GET {{deployedUrl}}/categories
+
+### Get all categories with search and pagination (Public)
+GET {{deployedUrl}}/categories?search=la
+
+### Get a specific category by ID (Public)
+GET {{deployedUrl}}/categories/2
+
+### Create a category (ADMIN/STAFF only)
+POST {{deployedUrl}}/categories
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Electronics",
+  "description": "Electronic gadgets and devices."
+}
+
+### Update a category (ADMIN/STAFF only)
+PATCH {{baseUrl}}/categories/1
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "description": "Updated description for Electronics."
+}
+
+### Delete a category (ADMIN/STAFF only)
+DELETE {{baseUrl}}/categories/3
+Authorization: Bearer {{adminToken}}
+
+#########################################################################
+                CART ENDPOINTS
+##########################################################################
+
+### Get all carts (ADMIN/STAFF only)
+GET {{deployedUrl}}/cart
+Authorization: Bearer {{adminToken}}
+
+### Get all carts filtered by user ID (ADMIN/STAFF only)
+GET {{deployedUrl}}/cart?userId=10
+Authorization: Bearer {{adminToken}}
+
+### Get a specific cart by ID (Cart owner or ADMIN/STAFF)
+GET {{deployedUrl}}/cart/5
+Authorization: Bearer {{bearetoken}}
+
+### Create a cart (Authenticated user)
+POST {{baseUrl}}/cart
 Authorization: Bearer {{bearetoken}}
 Content-Type: application/json
 
 {
-  "name": "Lenovo Thinkpad",
-  "description": "High-performance laptop for professionals."
+  "userId": 10, // This should be the authenticated user's ID
+  "items": [
+    {
+      "productId": 1, // Replace with a valid product ID
+      "quantity": 2
+    },
+     {
+      "productId": 2, // Replace with another valid product ID
+      "quantity": 1
+    }
+  ]
 }
+
+### Update a cart (Cart owner or ADMIN/STAFF)
+PATCH {{baseUrl}}/cart/5
+Authorization: Bearer {{bearetoken}}
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "productId": 1, // Replace with a valid product ID
+      "quantity": 3
+    },
+     {
+      "productId": 3, // Replace with another valid product ID
+      "quantity": 1
+    }
+  ]
+}
+
+### Delete a cart (Cart owner or ADMIN/STAFF)
+DELETE {{baseUrl}}/cart/5
+Authorization: Bearer {{bearetoken}}
 
 #########################################################################
                 ORDER ENDPOINTS
 ##########################################################################
-###
+### Get all orders (ADMIN/STAFF only)
 GET {{baseUrl}}/orders
-Authorization: Bearer {{bearetoken}}
+Authorization: Bearer {{adminToken}}
 
-###
+### Get a specific order by ID (Order owner or ADMIN/STAFF)
 GET {{baseUrl}}/orders/28
 Authorization: Bearer {{bearetoken}}
 
-###
+### Create an order (Authenticated user)
 POST {{baseUrl}}/orders
 Authorization: Bearer {{bearetoken}}
 Content-Type: application/json
@@ -144,9 +308,9 @@ Content-Type: application/json
   ]
 }
 
-###
+### Update an order (ADMIN/STAFF only)
 PATCH {{baseUrl}}/orders/28
-Authorization: Bearer {{bearetoken}}
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 
 {
@@ -155,7 +319,46 @@ Content-Type: application/json
   "total": 139.91
 }
 
-###
+### Delete an order (ADMIN/STAFF only)
 DELETE {{baseUrl}}/orders/23
+Authorization: Bearer {{adminToken}}
+
+#########################################################################
+                PAYMENTS ENDPOINTS
+##########################################################################
+
+### Get all payments (ADMIN/STAFF only)
+GET {{baseUrl}}/payments
+Authorization: Bearer {{adminToken}}
+
+### Get a specific payment by ID (Payment owner or ADMIN/STAFF)
+GET {{baseUrl}}/payments/1
 Authorization: Bearer {{bearetoken}}
+
+### Create a payment (Authenticated user - part of order creation flow)
+POST {{baseUrl}}/payments
+Authorization: Bearer {{bearetoken}}
+Content-Type: application/json
+
+{
+    "orderId": 8,
+    "amount": 135.41,
+    "currency": "USD",
+    "paymentMethod": "Credit Card",
+    "transactionId": "txn_12345",
+    "status": "PENDING"
+}
+
+### Update a payment (ADMIN/STAFF only)
+PATCH {{baseUrl}}/payments/1
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+    "status": "PAID"
+}
+
+### Delete a payment (ADMIN/STAFF only - use with caution!)
+DELETE {{baseUrl}}/payments/1
+Authorization: Bearer {{adminToken}}
 

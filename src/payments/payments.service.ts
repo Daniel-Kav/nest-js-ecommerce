@@ -17,14 +17,14 @@ export class PaymentsService {
   ) {}
   // Create a payment
   // userId is passed from the controller after authentication
-  async create(createPaymentDto: CreatePaymentDto, userId: number) {
+  async create(createPaymentDto: CreatePaymentDto, userId: number): Promise<Payment> {
      // Optional: Add logic here if linking payment to user or checking user context during creation
      // For now, assuming payment is linked via order which is linked to user
     return this.paymentsRepository.save(createPaymentDto);
   }
 
   // findAll is likely for admin/staff, authorization handled by controller guard
-  findAll() {
+  findAll(): Promise<Payment[]> {
     return this.paymentsRepository.find();
   }
 
@@ -47,7 +47,7 @@ export class PaymentsService {
   }
 
    // update and remove are restricted to ADMIN/STAFF by the controller guard
-  async update(id: number, updatePaymentDto: UpdatePaymentDto, userId: number) { // userId added to signature
+  async update(id: number, updatePaymentDto: UpdatePaymentDto, userId: number): Promise<Payment | null> { // userId added to signature
      const payment = await this.paymentsRepository.findOne({ where: { id }, relations: ['order'] });
      if (!payment) {
         throw new NotFoundException(`Payment with ID ${id} not found`);

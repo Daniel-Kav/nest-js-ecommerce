@@ -13,21 +13,19 @@ export class UsersService {
     private userRepository: Repository<User>,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto): Promise<User> {
     const user = this.userRepository.create(createUserDto);
     return this.userRepository.save(user);
   }
 
   async findAll(queryDto: FindAllUsersDto): Promise<User[]> {
     const { search, role, sortBy, sortOrder, limit, offset } = queryDto;
-
     const findOptions: FindManyOptions<User> = {
       where: {},
       order: {},
       take: limit,
       skip: offset,
     };
-
     if (search) {
       findOptions.where = [
         { email: Like(`%${search}%`) },
@@ -35,7 +33,6 @@ export class UsersService {
         { lastName: Like(`%${search}%`) },
       ];
     }
-
     if (role) {
       if (Array.isArray(findOptions.where)) {
         findOptions.where = findOptions.where.map(condition => ({ ...condition, role: role }));
@@ -43,21 +40,17 @@ export class UsersService {
         findOptions.where = { ...findOptions.where, role: role };
       }
     }
-
     if (sortBy && findOptions.order) {
       findOptions.order[sortBy] = sortOrder;
     } else if (findOptions.order) {
       findOptions.order = { createdAt: 'DESC' };
     }
-
     const whereIsEmpty = findOptions.where === undefined ||
                          (Array.isArray(findOptions.where) && findOptions.where.length === 0) ||
                          (!Array.isArray(findOptions.where) && Object.keys(findOptions.where).length === 0);
-
     if (whereIsEmpty) {
         delete findOptions.where;
     }
-
     return this.userRepository.find(findOptions);
   }
 
@@ -73,11 +66,11 @@ export class UsersService {
     return this.userRepository.findOne({ where: { email } });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return this.userRepository.update(id, updateUserDto);
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<void> {
+    await this.userRepository.update(id, updateUserDto);
   }
 
-  remove(id: number) {
-    return this.userRepository.delete(id);
+  async remove(id: number): Promise<void> {
+    await this.userRepository.delete(id);
   }
 }

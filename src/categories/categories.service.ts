@@ -13,26 +13,23 @@ export class CategoriesService {
     private categoriesRepository: Repository<Category>,
   ){}
 
-  create(createCategoryDto: CreateCategoryDto) {
+  async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
     return this.categoriesRepository.create(createCategoryDto);
   }
 
   async findAll(queryDto: FindAllCategoriesDto): Promise<Category[]> {
     const { search, sortBy, sortOrder, limit, offset } = queryDto;
-
     const findOptions: FindManyOptions<Category> = {
       where: {},
       order: {},
       take: limit,
       skip: offset,
     };
-
     if (search) {
       findOptions.where = [
         { name: Like(`%${search}%`) },
       ];
     }
-
     if (sortBy) {
       if (!findOptions.order) findOptions.order = {};
       findOptions.order[sortBy] = sortOrder;
@@ -40,15 +37,12 @@ export class CategoriesService {
       if (!findOptions.order) findOptions.order = {};
       findOptions.order = { createdAt: 'DESC' };
     }
-
     const whereIsEmpty = findOptions.where === undefined ||
                          (Array.isArray(findOptions.where) && findOptions.where.length === 0) ||
                          (!Array.isArray(findOptions.where) && typeof findOptions.where === 'object' && Object.keys(findOptions.where).length === 0);
-
     if (whereIsEmpty) {
         delete findOptions.where;
     }
-
     return this.categoriesRepository.find(findOptions);
   }
 
@@ -60,11 +54,11 @@ export class CategoriesService {
     return category;
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return this.categoriesRepository.update(id, updateCategoryDto);
+  async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<void> {
+    await this.categoriesRepository.update(id, updateCategoryDto);
   }
 
-  remove(id: number) {
-    return this.categoriesRepository.delete(id);
+  async remove(id: number): Promise<void> {
+    await this.categoriesRepository.delete(id);
   }
 }

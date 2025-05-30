@@ -1,10 +1,9 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateAuthDto } from './dto/register-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
-import * as bcrypt from 'bcryptjs';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -13,15 +12,15 @@ export class AuthService {
     private jwtService: JwtService,
   ){}
 
-  async register(createAuthDto: CreateAuthDto) {
+  async register(createAuthDto: CreateAuthDto): Promise<User> {
     const existingUser = await this.usersService.findByEmail(createAuthDto.email);
     if (existingUser) throw new ConflictException('Email already in use 😒');
     // Hash the password
     const user = await this.usersService.create(createAuthDto);
-    return user
-
+    return user;
   }
-  async login(loginDto: LoginUserDto) {
+
+  async login(loginDto: LoginUserDto): Promise<{ access_token: string; user: any }> {
     const user = await this.usersService.findByEmail(loginDto.email);
     if (!user || !(await user.comparePassword(loginDto.password))) {
       throw new UnauthorizedException('Invalid credentials !!😁');
@@ -33,5 +32,4 @@ export class AuthService {
       user
     };
   }
-
 }

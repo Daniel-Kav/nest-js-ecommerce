@@ -14,7 +14,7 @@ export class CartService {
   ) {}
   
   // userId is passed from the controller after authentication
-  async create(createCartDto: CreateCartDto, userId: number) {
+  async create(createCartDto: CreateCartDto, userId: number): Promise<Cart> {
     const cart = this.cartRepository.create({ ...createCartDto, userId });
     return this.cartRepository.save(cart);
   }
@@ -74,7 +74,7 @@ export class CartService {
   }
 
   // Authorization check: only allow update to own cart or if ADMIN/STAFF (assuming role check in controller for admin)
-  async update(id: number, updateCartDto: UpdateCartDto, userId: number) {
+  async update(id: number, updateCartDto: UpdateCartDto, userId: number): Promise<Cart | null> {
     const cart = await this.cartRepository.findOneBy({ id });
      if (!cart) {
        throw new NotFoundException(`Cart with ID ${id} not found`);

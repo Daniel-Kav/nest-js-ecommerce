@@ -15,7 +15,7 @@ export class OrdersService {
     private ordersRepository: Repository<Order>,
     @InjectRepository(OrderItem)
     private orderItemsRepository: Repository<OrderItem>,
-    // @InjectRepository(User) // Uncomment if fetching user roles in service
+    // @InjectRepository(User) 
     // private userRepository: Repository<User>,
   ) {}
 
@@ -44,7 +44,7 @@ export class OrdersService {
     return order;
   }
 
-  async update(id: number, updateOrderDto: UpdateOrderDto, userId: number) {
+  async update(id: number, updateOrderDto: UpdateOrderDto, userId: number): Promise<Order> {
     const order = await this.ordersRepository.findOneBy({ id });
     if (!order) {
        throw new NotFoundException(`Order with ID ${id} not found`);
