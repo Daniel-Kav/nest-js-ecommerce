@@ -74,7 +74,7 @@ import {
     @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
     orderItems: OrderItem[];
   
-    @OneToMany(() => Payment, (payment) => payment.order)
+    @OneToMany(() => Payment, (payment) => payment.order, { onDelete: 'CASCADE' })
     payments: Payment[];
   }
   
