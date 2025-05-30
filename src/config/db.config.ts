@@ -13,8 +13,8 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   autoLoadEntities: true,
   synchronize: true,
   // configure SSL options
-  ssl: {
-    rejectUnauthorized: true, // set to true if you want to reject unauthorized connections
-  },
+  // ssl: {
+  //   rejectUnauthorized: true, // set to true if you want to reject unauthorized connections
+  // },
 }; 
 
