@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,6 +19,9 @@ async function bootstrap() {
     forbidNonWhitelisted: true, 
     transform: true,
   }));
+
+  // Global Exception Filter
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // swagger documentation
   const config = new DocumentBuilder()
