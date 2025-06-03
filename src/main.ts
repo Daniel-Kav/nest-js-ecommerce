@@ -33,7 +33,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('', app, document);
   const host = '0.0.0.0'; // Listen on all network interfaces
 
   await app.listen(process.env.PORT ?? 3000, host);
