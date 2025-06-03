@@ -1,34 +1,42 @@
-# Stage 1: Build the application
-FROM node:lts-alpine AS builder
+# Build stage
+FROM node:18-alpine AS builder
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# Copy package.json and pnpm-lock.yaml and install dependencies
+# Install pnpm globally
+RUN npm install -g pnpm
+
+# Copy only package files first to leverage Docker cache
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
 
-# Copy the rest of the application code
+# Install dependencies with specific flags for faster installation
+RUN pnpm install --frozen-lockfile --prefer-offline
+
+# Copy source code
 COPY . .
 
 # Build the application
 RUN pnpm run build
 
-# Stage 2: Run the production application
-FROM node:lts-alpine AS runner
+# Production stage
+FROM node:18-alpine AS production
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# Copy package.json and pnpm-lock.yaml from the builder stage
-COPY --from=builder /app/package.json /app/pnpm-lock.yaml ./
+# Install pnpm globally
+RUN npm install -g pnpm
 
-# Install production dependencies only
-RUN pnpm install --prod --frozen-lockfile
+# Copy only package files first
+COPY package.json pnpm-lock.yaml ./
 
-# Copy the built application code from the builder stage
-COPY --from=builder /app/dist ./dist
+# Install only production dependencies
+RUN pnpm install --prod --frozen-lockfile --prefer-offline
 
-# Expose the application port (assuming your app runs on port 5000 as seen in logs)
+# Copy built application from builder stage
+COPY --from=builder /usr/src/app/dist ./dist
+
+# Expose the application port
 EXPOSE 5000
 
-# Run the application in production mode
-CMD ["pnpm", "start:prod"] 
+# Start the application
+CMD ["pnpm", "run", "start:prod"] 
