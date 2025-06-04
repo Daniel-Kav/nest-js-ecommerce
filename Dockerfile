@@ -1,42 +1,32 @@
-# Build stage
-FROM node:18-alpine AS builder
+# Dockerfile
+# Use a Node.js image
+FROM node:18-alpine AS development
 
-WORKDIR /usr/src/app
+# Set the working directory inside the container
+WORKDIR /usr/src/app # Keep this consistent with your Dockerfile output. Your build log shows /usr/src/app
 
-# Install pnpm globally
+# Install pnpm globally (if not already done via base image)
+# Your build log shows this is CACHED, so it's already there
 RUN npm install -g pnpm
 
-# Copy only package files first to leverage Docker cache
+# Copy package.json and pnpm-lock.yaml
 COPY package.json pnpm-lock.yaml ./
-
-# Install dependencies with specific flags for faster installation
+# Install dependencies using pnpm
 RUN pnpm install --frozen-lockfile --prefer-offline
 
-# Copy source code
+# Copy the rest of your application code AFTER dependencies are installed
 COPY . .
 
-# Build the application
-RUN pnpm run build
+# Build the application (for production, but good to ensure it builds in dev image too for validation)
+# REMOVE THIS LINE for hot reload development, as the build step creates 'dist' which will conflict
+# with the volume mount where you'll run `nest start --watch` on the source.
+# If you run build here, `nest start --watch` might watch the `dist` folder, or just rebuild.
+# For *development*, you usually don't run `pnpm run build` in the Dockerfile.
+# You just run `pnpm start:dev` directly.
+# RUN pnpm run build # <-- REMOVE THIS LINE FOR DEV DOCKERFILE
 
-# Production stage
-FROM node:18-alpine AS production
-
-WORKDIR /usr/src/app
-
-# Install pnpm globally
-RUN npm install -g pnpm
-
-# Copy only package files first
-COPY package.json pnpm-lock.yaml ./
-
-# Install only production dependencies
-RUN pnpm install --prod --frozen-lockfile --prefer-offline
-
-# Copy built application from builder stage
-COPY --from=builder /usr/src/app/dist ./dist
-
-# Expose the application port
+# Expose the port your NestJS app listens on (default is 3000)
 EXPOSE 5000
 
-# Start the application
-CMD ["pnpm", "run", "start:prod"] 
+# Command to run your NestJS app in watch mode using pnpm
+CMD ["pnpm", "start:dev"]
