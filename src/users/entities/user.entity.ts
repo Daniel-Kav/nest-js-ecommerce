@@ -14,6 +14,7 @@ import {
   import { Review } from '../../reviews/entities/review.entity';
   import { CartItem } from '../../cart/entities/cart-item.entity';
   import { Cart } from '../../cart/entities/cart.entity';
+  import { Exclude } from 'class-transformer';
   
   @Entity('users')
   export class User {
@@ -24,6 +25,7 @@ import {
     email: string;
   
     @Column()
+    @Exclude()
     password: string;
   
     @Column()
@@ -49,6 +51,10 @@ import {
   
     @Column({ nullable: true })
     passwordResetExpires: Date;
+  
+    @Column({ nullable: true })
+    @Exclude()
+    refreshToken?: string;
   
     @CreateDateColumn()
     createdAt: Date;
