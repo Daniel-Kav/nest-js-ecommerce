@@ -1,7 +1,7 @@
 @baseUrl = http://localhost:5000/api
 @deployedUrl =https://nest-js-ecommerce.onrender.com/api
-@bearetoken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE3LCJlbWFpbCI6InRlc3Q2QGV4YW1wbGUuY29tIiwicm9sZSI6IkNVU1RPTUVSIiwiaWF0IjoxNzQ4NTg3NTk1LCJleHAiOjE3NDg2NzM5OTV9.4txwWl1V2mhxTfoi-xdfNK1Q02gqgWftNau4z1zSOGk
-@adminToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDg1ODcwODUsImV4cCI6MTc0ODY3MzQ4NX0.AAZMqTU_klZiv0MX9vzb9YgQqbyOH9-UyyymB46TrSw
+@bearetoken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE3LCJlbWFpbCI6InRlc3Q2QGV4YW1wbGUuY29tIiwicm9sZSI6IkNVU1RPTUVSIiwiaWF0IjoxNzQ4OTQ5NTExLCJleHAiOjE3NDkwMzU5MTF9.0AN9DdCGWX-ZGyjGY21DXuBJ9N6WjWcYNSm7J-b0D44
+@adminToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDkwMzgyODIsImV4cCI6MTc0OTEyNDY4Mn0.dfXzZsE6wBdABXguIpx33oZFf0pmXEdHrBp5nOYUX8M
 
 #########################################################################
                 AUTH ENDPOINTS
@@ -28,7 +28,7 @@ Content-Type: application/json
 }
 
 ### Login an Admin
-POST {{deployedUrl}}/auth/login
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
@@ -41,16 +41,16 @@ Content-Type: application/json
 ##########################################################################
 
 ### Get all users (ADMIN only)
-GET {{deployedUrl}}/users
+GET {{baseUrl}}/users
 Authorization: Bearer {{adminToken}}
 
 ### Get all users with search and pagination (ADMIN only)
-GET {{deployedUrl}}/users?search=test&limit=5&offset=0
+GET {{baseUrl}}/users?search=test&limit=2&offset=0
 Authorization: Bearer {{adminToken}}
 
 ### Get a specific user by ID (Authenticated user - their own or ADMIN/STAFF)
-GET {{deployedUrl}}/users/10
-Authorization: Bearer {{bearetoken}}
+GET {{baseUrl}}/users/10
+Authorization: Bearer {{adminToken}}
 
 ### Get a specific user by ID (ADMIN/STAFF accessing another user)
 GET {{deployedUrl}}/users/10
@@ -124,13 +124,13 @@ Authorization: Bearer {{bearetoken}}
 ##########################################################################
 
 ### Get all products (Public)
-GET {{deployedUrl}}/products
+GET {{baseUrl}}/products
 
 ### Get all products with search and filtering (Public)
-GET {{deployedUrl}}/products?search=at
+GET {{baseUrl}}/products?search=oo
 
 ### Get a specific product by ID (Public)
-GET {{deployedUrl}}/products/21
+GET {{baseUrl}}/products/2
 
 ### Create a product (ADMIN/STAFF only)
 POST {{baseUrl}}/products
@@ -361,4 +361,32 @@ Content-Type: application/json
 ### Delete a payment (ADMIN/STAFF only - use with caution!)
 DELETE {{baseUrl}}/payments/1
 Authorization: Bearer {{adminToken}}
+
+#########################################################################
+                CACHE ENDPOINTS
+##########################################################################
+
+### Create a cache entry
+POST {{baseUrl}}/redis
+Content-Type: application/json
+
+{
+  "key": "greeting",
+  "value": "hello world"
+}
+
+### Get a cache entry
+GET {{baseUrl}}/redis/greeting
+
+### Update a cache entry
+PATCH {{baseUrl}}/redis/greeting
+Content-Type: application/json
+
+{
+  "value": "hello updated world",
+  "ttl": 120
+}
+
+### Delete a cache entry
+DELETE {{baseUrl}}/redis/greeting
 
