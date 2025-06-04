@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
 import { CategoriesModule } from './categories/categories.module';
@@ -13,28 +13,33 @@ import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { createKeyv, Keyv } from '@keyv/redis';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { CacheableMemory } from 'cacheable';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { RedisModule } from './redis/redis.module';
+import { LoggerMiddleware } from './common/logger.middleware';
 
 @Module({
   imports: [
-    // CacheModule.register({
-    //   isGlobal: true,
-    //   ttl: 5000,
-    //   // store: createKeyv('redis://localhost:6379')
-    // }),
     TypeOrmModule.forRoot(typeOrmConfig),
     AuthModule, UsersModule, ProductsModule, CategoriesModule, OrdersModule, PaymentsModule, CartModule, ReviewsModule,
+    RedisModule,
     CacheModule.registerAsync({
-      useFactory: async () => {
+      isGlobal: true,
+      useFactory: () => {
         return {
+          ttl: 60000, // 60 sec: Cache time-to-live
           stores: [
             new Keyv({
-              store: new CacheableMemory({ ttl: 60000, lruSize: 5000 }),
+              store: new CacheableMemory({
+                ttl: 60 * 60 * 1000,
+                lruSize: 5000,
+              }),
             }),
-            createKeyv('redis://localhost:6379'),
+            createKeyv('redis://default:123456789!@localhost:6379'),
           ],
         };
       },
     }),
+    
   ],
   controllers: [],
   providers: [ {
@@ -42,4 +47,8 @@ import { CacheableMemory } from 'cacheable';
     useClass: CacheInterceptor,}     
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}
