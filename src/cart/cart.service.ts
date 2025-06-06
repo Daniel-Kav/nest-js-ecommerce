@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Cart } from './entities/cart.entity';
 import { Repository, FindManyOptions } from 'typeorm';
 import { FindAllCartsDto, CartSortBy, SortOrder } from './dto/find-all-carts.dto';
+import { ApiResponse } from '../common/interfaces/api-response.interface';
 
 @Injectable()
 export class CartService {
@@ -74,27 +75,46 @@ export class CartService {
   }
 
   // Authorization check: only allow update to own cart or if ADMIN/STAFF (assuming role check in controller for admin)
-  async update(id: number, updateCartDto: UpdateCartDto, userId: number): Promise<Cart | null> {
+  async update(id: number, updateCartDto: UpdateCartDto, userId: number): Promise<ApiResponse> {
     const cart = await this.cartRepository.findOneBy({ id });
-     if (!cart) {
-       throw new NotFoundException(`Cart with ID ${id} not found`);
+    if (!cart) {
+      return {
+        success: false,
+        message: `Cart with ID ${id} not found`
+      };
     }
-     if (cart.userId !== userId) {
-       throw new UnauthorizedException('You do not have permission to update this cart');
-     }
+    if (cart.userId !== userId) {
+      return {
+        success: false,
+        message: 'You do not have permission to update this cart'
+      };
+    }
     await this.cartRepository.update(id, updateCartDto);
-    return this.cartRepository.findOneBy({ id }); // Return the updated cart
+    return {
+      success: true,
+      message: 'Cart updated successfully'
+    };
   }
 
   // Authorization check: only allow removal of own cart or if ADMIN/STAFF (assuming role check in controller for admin)
-  async remove(id: number, userId: number): Promise<void> {
-     const cart = await this.cartRepository.findOneBy({ id });
-     if (!cart) {
-       throw new NotFoundException(`Cart with ID ${id} not found`);
-     }
-      if (cart.userId !== userId) {
-       throw new UnauthorizedException('You do not have permission to delete this cart');
-     }
+  async remove(id: number, userId: number): Promise<ApiResponse> {
+    const cart = await this.cartRepository.findOneBy({ id });
+    if (!cart) {
+      return {
+        success: false,
+        message: `Cart with ID ${id} not found`
+      };
+    }
+    if (cart.userId !== userId) {
+      return {
+        success: false,
+        message: 'You do not have permission to delete this cart'
+      };
+    }
     await this.cartRepository.delete(id);
+    return {
+      success: true,
+      message: 'Cart deleted successfully'
+    };
   }
 }

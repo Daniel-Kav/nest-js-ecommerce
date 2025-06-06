@@ -8,9 +8,11 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { Request } from 'express';
 import { FindAllCartsDto } from './dto/find-all-carts.dto';
-
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+@ApiTags('cart')
 @Controller('cart')
 @UseGuards(jwtAuthGuard)
+@ApiBearerAuth()
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
