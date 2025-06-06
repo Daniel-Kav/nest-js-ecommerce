@@ -7,9 +7,11 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { Request } from 'express';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('orders')
 @UseGuards(jwtAuthGuard)
+// @ApiBearerAuth()
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
@@ -34,8 +36,8 @@ export class OrdersController {
   }
 
   @Patch(':id')
-   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.STAFF)
+  //  @UseGuards(RolesGuard)
+  // @Roles(UserRole.ADMIN, UserRole.STAFF)
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto, @Req() req: Request) {
      const userId = (req.user as any).id;
     // Service method should verify ownership or admin role
@@ -43,8 +45,8 @@ export class OrdersController {
   }
 
   @Delete(':id')
-   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.STAFF)
+  //  @UseGuards(RolesGuard)
+  // @Roles(UserRole.ADMIN, UserRole.STAFF)
   remove(@Param('id') id: string, @Req() req: Request) {
      const userId = (req.user as any).id;
     // Service method should verify ownership or admin role
