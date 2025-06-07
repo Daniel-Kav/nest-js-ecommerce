@@ -1,25 +1,24 @@
 @baseUrl = http://localhost:5000/api
-@deployedUrl =https://nest-js-ecommerce.onrender.com/api
-@bearetoken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE3LCJlbWFpbCI6InRlc3Q2QGV4YW1wbGUuY29tIiwicm9sZSI6IkNVU1RPTUVSIiwiaWF0IjoxNzQ4OTQ5NTExLCJleHAiOjE3NDkwMzU5MTF9.0AN9DdCGWX-ZGyjGY21DXuBJ9N6WjWcYNSm7J-b0D44
-@adminToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDkwMzgyODIsImV4cCI6MTc0OTEyNDY4Mn0.dfXzZsE6wBdABXguIpx33oZFf0pmXEdHrBp5nOYUX8M
+@bearetoken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEzLCJlbWFpbCI6InRlc3Q2QGV4YW1wbGUuY29tIiwicm9sZSI6IkNVU1RPTUVSIiwiaWF0IjoxNzQ5MTA4MzkzLCJleHAiOjE3NDkxOTQ3OTN9.SgEFLcN2bjGgISg4GQb1eHmxrMUU7HYPHNgjuDnjFrI
+@adminToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDkxMDc4MTUsImV4cCI6MTc0OTE5NDIxNX0.AIX_-dxKNZSanzha-ipeLQjEMNja4a81CPgclR7U_6M
 
 #########################################################################
                 AUTH ENDPOINTS
 ##########################################################################
 
 ### Register a new user
-POST  {{deployedUrl}}/auth/register
+POST  {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-    "email": "test6@example.com",
+    "email": "test7@example.com",
     "password": "SecurePassword123!",
     "firstName": "Test",
     "lastName": "User"
 }
 
 ### Login a user (Customer)
-POST {{deployedUrl}}/auth/login
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
@@ -36,6 +35,8 @@ Content-Type: application/json
     "password": "admin123"
 }
 
+
+
 #########################################################################
                 USER ENDPOINTS
 ##########################################################################
@@ -45,21 +46,21 @@ GET {{baseUrl}}/users
 Authorization: Bearer {{adminToken}}
 
 ### Get all users with search and pagination (ADMIN only)
-GET {{baseUrl}}/users?search=test&limit=2&offset=0
+GET {{baseUrl}}/users?search=oo&limit=5
 Authorization: Bearer {{adminToken}}
 
 ### Get a specific user by ID (Authenticated user - their own or ADMIN/STAFF)
-GET {{baseUrl}}/users/10
+GET {{baseUrl}}/users/4
 Authorization: Bearer {{adminToken}}
 
 ### Get a specific user by ID (ADMIN/STAFF accessing another user)
-GET {{deployedUrl}}/users/10
+GET {{baseUrl}}/users/10
 Authorization: Bearer {{adminToken}}
 
 ### Update a user (Authenticated user - their own)
 PATCH   {{baseUrl}}/users/10
 Content-Type: application/json
-Authorization: Bearer {{bearetoken}}
+Authorization: Bearer {{adminToken}}
 
 {
     "firstName": "UpdatedFirstName"
@@ -71,12 +72,11 @@ Content-Type: application/json
 Authorization: Bearer {{adminToken}}
 
 {
-    "email": "updated_test10@example.com",
-    "role": "ADMIN"
+    "email": "updated_test10@example.com"
 }
 
 ### Delete a user (ADMIN/STAFF only - use with caution!)
-DELETE {{baseUrl}}/users/11
+DELETE {{baseUrl}}/users/14
 Authorization: Bearer {{adminToken}}
 
 #########################################################################
@@ -84,15 +84,15 @@ Authorization: Bearer {{adminToken}}
 ##########################################################################
 
 ### Get all reviews (ADMIN only)
-GET {{deployedUrl}}/reviews
+GET {{baseUrl}}/reviews
 Authorization: Bearer {{adminToken}}
 
 ### Get all reviews with search and filtering (ADMIN only)
-GET {{deployedUrl}}/reviews?search=great&productId=1&minRating=4
+GET {{baseUrl}}/reviews?search=great&productId=1&minRating=4
 Authorization: Bearer {{adminToken}}
 
 ### Get a specific review by ID
-GET {{deployedUrl}}/reviews/10
+GET {{baseUrl}}/reviews/10
 
 ### Create a review (Authenticated user)
 POST {{baseUrl}}/reviews
@@ -127,10 +127,10 @@ Authorization: Bearer {{bearetoken}}
 GET {{baseUrl}}/products
 
 ### Get all products with search and filtering (Public)
-GET {{baseUrl}}/products?search=oo
+GET {{baseUrl}}/products?search=Car
 
 ### Get a specific product by ID (Public)
-GET {{baseUrl}}/products/2
+GET {{baseUrl}}/products/21
 
 ### Create a product (ADMIN/STAFF only)
 POST {{baseUrl}}/products
@@ -158,7 +158,7 @@ Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 
 {
-  "price": 55,
+  "price": 56,
   "stockQuantity": 90
 }
 
@@ -171,16 +171,16 @@ Authorization: Bearer {{adminToken}}
 ##########################################################################
 
 ### Get all categories (Public)
-GET {{deployedUrl}}/categories
+GET {{baseUrl}}/categories
 
 ### Get all categories with search and pagination (Public)
-GET {{deployedUrl}}/categories?search=la
+GET {{baseUrl}}/categories?search=la
 
 ### Get a specific category by ID (Public)
-GET {{deployedUrl}}/categories/2
+GET {{baseUrl}}/categories/2
 
 ### Create a category (ADMIN/STAFF only)
-POST {{deployedUrl}}/categories
+POST {{baseUrl}}/categories
 Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 
@@ -207,16 +207,16 @@ Authorization: Bearer {{adminToken}}
 ##########################################################################
 
 ### Get all carts (ADMIN/STAFF only)
-GET {{deployedUrl}}/cart
+GET {{baseUrl}}/cart
 Authorization: Bearer {{adminToken}}
 
 ### Get all carts filtered by user ID (ADMIN/STAFF only)
-GET {{deployedUrl}}/cart?userId=10
+GET {{baseUrl}}/cart?userId=10
 Authorization: Bearer {{adminToken}}
 
 ### Get a specific cart by ID (Cart owner or ADMIN/STAFF)
-GET {{deployedUrl}}/cart/5
-Authorization: Bearer {{bearetoken}}
+GET {{baseUrl}}/cart/5
+Authorization: Bearer {{adminToken}}
 
 ### Create a cart (Authenticated user)
 POST {{baseUrl}}/cart
@@ -270,43 +270,7 @@ Authorization: Bearer {{adminToken}}
 GET {{baseUrl}}/orders/28
 Authorization: Bearer {{bearetoken}}
 
-### Create an order (Authenticated user)
-POST {{baseUrl}}/orders
-Authorization: Bearer {{bearetoken}}
-Content-Type: application/json
 
-{
-  "userId": 6,
-  "subtotal": 120.75,
-  "tax": 9.66,
-  "shipping": 5.00,
-  "total": 135.41,
-  "shippingAddress": {
-    "firstName": "John",
-    "lastName": "Doe",
-    "street": "123 Main St",
-    "city": "Anytown",
-    "state": "CA",
-    "zipCode": "90210",
-    "country": "USA"
-  },
-  "billingAddress": {
-    "firstName": "John",
-    "lastName": "Doe",
-    "street": "123 Main St",
-    "city": "Anytown",
-    "state": "CA",
-    "zipCode": "90210",
-    "country": "USA"
-  },
-  "orderItems": [
-    {
-      "price": 21,
-      "productId": 11,
-      "quantity": 2
-    }
-  ]
-}
 
 ### Update an order (ADMIN/STAFF only)
 PATCH {{baseUrl}}/orders/28
@@ -332,8 +296,8 @@ GET {{baseUrl}}/payments
 Authorization: Bearer {{adminToken}}
 
 ### Get a specific payment by ID (Payment owner or ADMIN/STAFF)
-GET {{baseUrl}}/payments/1
-Authorization: Bearer {{bearetoken}}
+GET {{baseUrl}}/payments/2
+Authorization: Bearer {{adminToken}}
 
 ### Create a payment (Authenticated user - part of order creation flow)
 POST {{baseUrl}}/payments
@@ -372,7 +336,8 @@ Content-Type: application/json
 
 {
   "key": "greeting",
-  "value": "hello world"
+  "value": "hello world",
+  "ttl": 120
 }
 
 ### Get a cache entry

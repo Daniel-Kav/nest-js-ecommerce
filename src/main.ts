@@ -9,19 +9,18 @@ async function bootstrap() {
 
   // Global Prefix
   app.setGlobalPrefix('api');
-
   // CORS
   app.enableCors();
 
   // Global Validation Pipe
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
-    forbidNonWhitelisted: true, 
+    // forbidNonWhitelisted: true, 
     transform: true,
   }));
 
   // Global Exception Filter
-  app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalFilters(app.get(AllExceptionsFilter));
 
   // swagger documentation
   const config = new DocumentBuilder()

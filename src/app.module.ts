@@ -14,14 +14,14 @@ import { createKeyv, Keyv } from '@keyv/redis';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { CacheableMemory } from 'cacheable';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { RedisModule } from './redis/redis.module';
 import { LoggerMiddleware } from './common/logger.middleware';
+import { LoggerModule } from './logger/logger.module';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(typeOrmConfig),
     AuthModule, UsersModule, ProductsModule, CategoriesModule, OrdersModule, PaymentsModule, CartModule, ReviewsModule,
-    RedisModule,
     CacheModule.registerAsync({
       isGlobal: true,
       useFactory: () => {
@@ -30,7 +30,7 @@ import { LoggerMiddleware } from './common/logger.middleware';
           stores: [
             new Keyv({
               store: new CacheableMemory({
-                ttl: 60 * 60 * 1000,
+                ttl: 60000,
                 lruSize: 5000,
               }),
             }),
@@ -39,12 +39,16 @@ import { LoggerMiddleware } from './common/logger.middleware';
         };
       },
     }),
+    LoggerModule,
     
   ],
   controllers: [],
-  providers: [ {
-    provide: APP_INTERCEPTOR,
-    useClass: CacheInterceptor,}     
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInterceptor,
+    },
+    AllExceptionsFilter,
   ],
 })
 export class AppModule implements NestModule {
