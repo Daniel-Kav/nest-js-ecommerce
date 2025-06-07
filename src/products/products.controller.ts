@@ -7,8 +7,11 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { FindAllProductsDto } from './dto/find-all-products.dto';
+import { ApiExtraModels, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('products')
+// @ApiExtraModels(UpdateProductDto)
+@ApiBearerAuth()
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
@@ -33,6 +36,7 @@ export class ProductsController {
   @Patch(':id')
   @UseGuards(jwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.STAFF)
+  @ApiBody({ type: UpdateProductDto })
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     return this.productsService.update(+id, updateProductDto);
   }
