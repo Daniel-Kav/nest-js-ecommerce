@@ -8,13 +8,16 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { jwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { Request } from 'express';
 import { FindAllReviewsDto } from './dto/find-all-reviews.dto';
+import { ApiExtraModels, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('reviews')
+// @ApiExtraModels(UpdateReviewDto)
+// @ApiBearerAuth()
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
   @Post()
-  @UseGuards(jwtAuthGuard)
+  // @UseGuards(jwtAuthGuard)
   create(@Body() createReviewDto: CreateReviewDto, @Req() req: Request) {
     const userId = (req.user as any).id;
     return this.reviewsService.create(createReviewDto, userId);
@@ -36,14 +39,15 @@ export class ReviewsController {
   }
 
   @Patch(':id')
-  @UseGuards(jwtAuthGuard)
+  // @UseGuards(jwtAuthGuard)
+  @ApiBody({ type: UpdateReviewDto })
   update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto, @Req() req: Request) {
     const userId = (req.user as any).id;
     return this.reviewsService.update(+id, updateReviewDto, userId);
   }
 
   @Delete(':id')
-  @UseGuards(jwtAuthGuard)
+  // @UseGuards(jwtAuthGuard)
   remove(@Param('id') id: string, @Req() req: Request) {
     const userId = (req.user as any).id;
     return this.reviewsService.remove(+id, userId);

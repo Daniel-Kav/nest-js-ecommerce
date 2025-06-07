@@ -6,6 +6,7 @@ import { Review } from './entities/review.entity';
 import { Repository, FindManyOptions, Like, Between, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { FindAllReviewsDto, ReviewSortBy, SortOrder } from './dto/find-all-reviews.dto';
+import { ApiResponse } from '../common/interfaces/api-response.interface';
 
 @Injectable()
 export class ReviewsService {
@@ -97,26 +98,45 @@ export class ReviewsService {
     return review;
   }
 
-  async update(id: number, updateReviewDto: UpdateReviewDto, userId: number): Promise<Review | null> {
+  async update(id: number, updateReviewDto: UpdateReviewDto, userId: number): Promise<ApiResponse> {
     const review = await this.reviewRepository.findOneBy({ id });
     if (!review) {
-      throw new NotFoundException(`Review with ID ${id} not found`);
+      return {
+        success: false,
+        message: `Review with ID ${id} not found`
+      };
     }
     if (review.userId !== userId) {
-      throw new UnauthorizedException('You do not have permission to update this review');
+      return {
+        success: false,
+        message: 'You do not have permission to update this review'
+      };
     }
     await this.reviewRepository.update(id, updateReviewDto);
-    return this.reviewRepository.findOneBy({ id });
+    return {
+      success: true,
+      message: 'Review updated successfully'
+    };
   }
 
-  async remove(id: number, userId: number): Promise<void> {
+  async remove(id: number, userId: number): Promise<ApiResponse> {
     const review = await this.reviewRepository.findOneBy({ id });
     if (!review) {
-      throw new NotFoundException(`Review with ID ${id} not found`);
+      return {
+        success: false,
+        message: `Review with ID ${id} not found`
+      };
     }
     if (review.userId !== userId) {
-      throw new UnauthorizedException('You do not have permission to delete this review');
+      return {
+        success: false,
+        message: 'You do not have permission to delete this review'
+      };
     }
     await this.reviewRepository.delete(id);
+    return {
+      success: true,
+      message: 'Review deleted successfully'
+    };
   }
 }
