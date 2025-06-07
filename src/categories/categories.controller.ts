@@ -7,8 +7,10 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { FindAllCategoriesDto } from './dto/find-all-categories.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('categories')
+@ApiBearerAuth()
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 

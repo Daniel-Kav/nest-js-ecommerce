@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
 import { Repository, FindManyOptions, Like } from 'typeorm';
 import { FindAllCategoriesDto, CategorySortBy, SortOrder } from './dto/find-all-categories.dto';
+import { ApiResponse } from '../common/interfaces/api-response.interface';
 
 @Injectable()
 export class CategoriesService {
@@ -54,11 +55,33 @@ export class CategoriesService {
     return category;
   }
 
-  async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<void> {
+  async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<ApiResponse> {
+    const category = await this.categoriesRepository.findOne({ where: { id } });
+    if (!category) {
+      return {
+        success: false,
+        message: `Category with ID ${id} not found`
+      };
+    }
     await this.categoriesRepository.update(id, updateCategoryDto);
+    return {
+      success: true,
+      message: 'Category updated successfully'
+    };
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number): Promise<ApiResponse> {
+    const category = await this.categoriesRepository.findOne({ where: { id } });
+    if (!category) {
+      return {
+        success: false,
+        message: `Category with ID ${id} not found`
+      };
+    }
     await this.categoriesRepository.delete(id);
+    return {
+      success: true,
+      message: 'Category deleted successfully'
+    };
   }
 }
