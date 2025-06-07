@@ -6,6 +6,7 @@ import { Payment } from './entities/payment.entity';
 import { Repository } from 'typeorm';
 import { Order } from 'src/orders/entities/order.entity'; // Assuming Payment entity has a relation to Order
 import { UserRole } from 'src/common/enums/user-role.enum'; // Assuming UserRole enum might be needed
+import { ApiResponse } from '../common/interfaces/api-response.interface';
 
 @Injectable()
 export class PaymentsService {
@@ -47,27 +48,46 @@ export class PaymentsService {
   }
 
    // update and remove are restricted to ADMIN/STAFF by the controller guard
-  async update(id: number, updatePaymentDto: UpdatePaymentDto, userId: number): Promise<Payment | null> { // userId added to signature
-     const payment = await this.paymentsRepository.findOne({ where: { id }, relations: ['order'] });
-     if (!payment) {
-        throw new NotFoundException(`Payment with ID ${id} not found`);
-     }
-     // Authorization check (optional here, as controller guard restricts roles):
-     // if (!payment.order || payment.order.userId !== userId) { ... check admin/staff role ... }
-
-    await this.paymentsRepository.update(id, updatePaymentDto) ;
-     return this.paymentsRepository.findOne({ where: { id } }); // Return the updated payment
+  async update(id: number, updatePaymentDto: UpdatePaymentDto, userId: number): Promise<ApiResponse> {
+    const payment = await this.paymentsRepository.findOne({ where: { id }, relations: ['order'] });
+    if (!payment) {
+      return {
+        success: false,
+        message: `Payment with ID ${id} not found`
+      };
+    }
+    if (!payment.order || payment.order.userId !== userId) {
+      return {
+        success: false,
+        message: 'You do not have permission to update this payment'
+      };
+    }
+    await this.paymentsRepository.update(id, updatePaymentDto);
+    return {
+      success: true,
+      message: 'Payment updated successfully'
+    };
   }
 
    // remove is restricted to ADMIN/STAFF by the controller guard
-  async remove(id: number, userId: number): Promise<void> { // userId added to signature
-     const payment = await this.paymentsRepository.findOne({ where: { id }, relations: ['order'] });
-      if (!payment) {
-        throw new NotFoundException(`Payment with ID ${id} not found`);
-     }
-      // Authorization check (optional here, as controller guard restricts roles):
-     // if (!payment.order || payment.order.userId !== userId) { ... check admin/staff role ... }
-
+  async remove(id: number, userId: number): Promise<ApiResponse> {
+    const payment = await this.paymentsRepository.findOne({ where: { id }, relations: ['order'] });
+    if (!payment) {
+      return {
+        success: false,
+        message: `Payment with ID ${id} not found`
+      };
+    }
+    if (!payment.order || payment.order.userId !== userId) {
+      return {
+        success: false,
+        message: 'You do not have permission to delete this payment'
+      };
+    }
     await this.paymentsRepository.delete(id);
+    return {
+      success: true,
+      message: 'Payment deleted successfully'
+    };
   }
 }

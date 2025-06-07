@@ -7,9 +7,12 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { Request } from 'express';
+import { Payment } from './entities/payment.entity';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('payments')
 @UseGuards(jwtAuthGuard)
+@ApiBearerAuth()
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
@@ -27,8 +30,8 @@ export class PaymentsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @Req() req: Request) {
-    const userId = (req.user as any).id;
+  findOne(@Param('id') id: string, @Req() req: Request) : Promise<Payment>{
+    const userId = (req.user as any).id ;
     return this.paymentsService.findOne(+id, userId);
   }
 
