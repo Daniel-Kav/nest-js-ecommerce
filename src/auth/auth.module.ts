@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import * as dotenv from 'dotenv';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { CaslModule } from 'src/casl/casl.module';
 
 dotenv.config();
 
@@ -17,7 +18,9 @@ dotenv.config();
   JwtModule.register({
     secret: process.env.JWT_SECRET,
     signOptions: { expiresIn: '1d' },
-  }),],
+  }),
+  CaslModule,
+],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
 })
