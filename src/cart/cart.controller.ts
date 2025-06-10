@@ -9,7 +9,7 @@ import { UserRole } from 'src/common/enums/user-role.enum';
 import { Request } from 'express';
 import { FindAllCartsDto } from './dto/find-all-carts.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-@ApiTags('cart')
+@ApiTags('Cart')
 @Controller('cart')
 @UseGuards(jwtAuthGuard)
 @ApiBearerAuth()
