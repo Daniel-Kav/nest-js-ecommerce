@@ -2,7 +2,9 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { LoggerService } from './logger.service';
 import { CreateLoggerDto } from './dto/create-logger.dto';
 import { UpdateLoggerDto } from './dto/update-logger.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Logger')
 @Controller('logger')
 export class LoggerController {
   constructor(private readonly loggerService: LoggerService) {}
