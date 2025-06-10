@@ -11,7 +11,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './config/db.config';
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { createKeyv, Keyv } from '@keyv/redis';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { CacheableMemory } from 'cacheable';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerMiddleware } from './common/logger.middleware';
@@ -19,10 +19,14 @@ import { LoggerModule } from './logger/logger.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { CaslModule } from './casl/casl.module';
 import { EmailModule } from './email/email.module';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { CustomThrottlerGuard } from './common/guards/throttler.guard';
+import { throttlerConfig } from './config/throttler.config';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(typeOrmConfig),
+    ThrottlerModule.forRoot(throttlerConfig),
     AuthModule, UsersModule, ProductsModule, CategoriesModule, OrdersModule, PaymentsModule, CartModule, ReviewsModule,
     CacheModule.registerAsync({
       isGlobal: true,
@@ -48,6 +52,10 @@ import { EmailModule } from './email/email.module';
   ],
   controllers: [],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: CustomThrottlerGuard,
+    },
     {
       provide: APP_INTERCEPTOR,
       useClass: CacheInterceptor,
