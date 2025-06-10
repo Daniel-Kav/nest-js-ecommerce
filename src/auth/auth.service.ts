@@ -113,9 +113,14 @@ export class AuthService {
       throw new NotFoundException('Invalid or expired reset token');
     }
 
+    // Create a temporary user instance to hash the password
+    const tempUser = new User();
+    tempUser.password = resetPasswordDto.password;
+    await tempUser.hashPassword();
+
     // Update password and clear reset token
     await this.usersService.update(user.id, {
-      password: resetPasswordDto.password,
+      password: tempUser.password, // This is now the hashed password
       passwordResetToken: undefined,
       passwordResetExpires: undefined,
     } as UpdateUserDto);
