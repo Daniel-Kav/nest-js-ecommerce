@@ -1,7 +1,8 @@
-import { IsOptional, IsString, IsNumber, IsEnum } from 'class-validator';
+import { IsOptional, IsString, IsNumber, IsEnum, Min, Max, IsIn } from 'class-validator';
 import { Type } from 'class-transformer';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
+import { PartialType } from '@nestjs/swagger';
 
 export enum UserSortBy {
   EMAIL = 'email',
@@ -26,25 +27,50 @@ export class FindAllUsersDto {
   @IsEnum(UserRole)
   role?: UserRole; // Filter by user role
 
-  @ApiPropertyOptional({ enum: UserSortBy, description: 'Field to sort by', example: UserSortBy.CREATED_AT })
+  @ApiPropertyOptional({ 
+    enum: UserSortBy, 
+    description: 'Field to sort by', 
+    example: UserSortBy.CREATED_AT,
+    default: UserSortBy.CREATED_AT
+  })
   @IsOptional()
   @IsEnum(UserSortBy)
-  sortBy?: UserSortBy; // Field to sort by
+  sortBy?: UserSortBy = UserSortBy.CREATED_AT; // Field to sort by
 
-  @ApiPropertyOptional({ enum: SortOrder, description: 'Sort order (ASC or DESC)', example: SortOrder.ASC })
+  @ApiPropertyOptional({ 
+    enum: SortOrder, 
+    description: 'Sort order (ASC or DESC)', 
+    example: SortOrder.DESC,
+    default: SortOrder.DESC
+  })
   @IsOptional()
   @IsEnum(SortOrder)
-  sortOrder?: SortOrder = SortOrder.ASC; // Sort order (ASC or DESC)
+  order?: SortOrder = SortOrder.DESC; // Sort order (ASC or DESC)
 
-  @ApiPropertyOptional({ description: 'Number of items per page', example: 10 })
+  @ApiPropertyOptional({ 
+    description: 'Page number (1-based)', 
+    example: 1,
+    default: 1
+  })
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  limit?: number = 10; // Number of items per page
+  @Min(1)
+  page?: number = 1;
 
-  @ApiPropertyOptional({ description: 'Number of items to skip', example: 0 })
+  @ApiPropertyOptional({ 
+    description: 'Number of items per page (max: 100)', 
+    example: 10,
+    default: 10
+  })
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  offset?: number = 0; // Number of items to skip
-} 
+  @Min(1)
+  @Max(100)
+  limit?: number = 10;
+}
+
+export class FindAllUsersQueryDto extends FindAllUsersDto {}
+
+export class FindAllUsersBodyDto extends PartialType(FindAllUsersDto) {}
