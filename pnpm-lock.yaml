@@ -53,6 +53,9 @@ importers:
       '@nestjs/typeorm':
         specifier: ^10.0.0
         version: 10.0.2(@nestjs/common@11.1.2(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.24(pg@8.16.0)(redis@4.7.1)(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.11.29)(@types/node@22.15.21)(typescript@5.8.3)))
+      '@types/ejs':
+        specifier: ^3.1.5
+        version: 3.1.5
       bcrypt:
         specifier: ^5.1.0
         version: 5.1.1
@@ -80,6 +83,9 @@ importers:
       dotenv:
         specifier: ^16.5.0
         version: 16.5.0
+      ejs:
+        specifier: ^3.1.10
+        version: 3.1.10
       express-rate-limit:
         specifier: ^6.8.1
         version: 6.11.2(express@5.1.0)
@@ -93,7 +99,7 @@ importers:
         specifier: ^1.4.5-lts.1
         version: 1.4.5-lts.2
       nodemailer:
-        specifier: ^6.9.4
+        specifier: ^6.10.1
         version: 6.10.1
       passport:
         specifier: ^0.6.0
@@ -119,9 +125,6 @@ importers:
       stripe:
         specifier: ^12.17.0
         version: 12.18.0
-      typeorm:
-        specifier: ^0.3.17
-        version: 0.3.24(pg@8.16.0)(redis@4.7.1)(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.11.29)(@types/node@22.15.21)(typescript@5.8.3))
       uuid:
         specifier: ^9.0.0
         version: 9.0.1
@@ -163,7 +166,7 @@ importers:
         specifier: ^22.15.21
         version: 22.15.21
       '@types/nodemailer':
-        specifier: ^6.4.9
+        specifier: ^6.4.17
         version: 6.4.17
       '@types/passport-jwt':
         specifier: ^3.0.9
@@ -219,6 +222,9 @@ importers:
       tsconfig-paths:
         specifier: ^4.2.0
         version: 4.2.0
+      typeorm:
+        specifier: ^0.3.24
+        version: 0.3.24(pg@8.16.0)(redis@4.7.1)(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.11.29)(@types/node@22.15.21)(typescript@5.8.3))
       typescript:
         specifier: ^5.7.3
         version: 5.8.3
@@ -1221,6 +1227,9 @@ packages:
 
   '@types/cookiejar@2.1.5':
     resolution: {integrity: sha512-he+DHOWReW0nghN24E1WUqM0efK4kI9oTqDm6XmK8ZPe2djZ90BSNdGnIyCLzCPw7/pogPlGbzI2wHGGmi4O/Q==}
+
+  '@types/ejs@3.1.5':
+    resolution: {integrity: sha512-nv+GSx77ZtXiJzwKdsASqi+YQ5Z7vwHsTP0JY2SiQgjGckkBRKZnk8nIM+7oUZ1VCtuTz0+By4qVR7fqzp/Dfg==}
 
   '@types/eslint-scope@3.7.7':
     resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
@@ -5340,6 +5349,8 @@ snapshots:
       '@types/node': 22.15.21
 
   '@types/cookiejar@2.1.5': {}
+
+  '@types/ejs@3.1.5': {}
 
   '@types/eslint-scope@3.7.7':
     dependencies:

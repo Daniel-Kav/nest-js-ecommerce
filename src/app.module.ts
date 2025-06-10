@@ -18,6 +18,7 @@ import { LoggerMiddleware } from './common/logger.middleware';
 import { LoggerModule } from './logger/logger.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { CaslModule } from './casl/casl.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { CaslModule } from './casl/casl.module';
     }),
     LoggerModule,
     CaslModule,
+    EmailModule,
     
   ],
   controllers: [],

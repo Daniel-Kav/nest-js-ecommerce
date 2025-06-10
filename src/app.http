@@ -1,6 +1,7 @@
 @baseUrl = http://localhost:5000/api
-@bearetoken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEzLCJlbWFpbCI6InRlc3Q2QGV4YW1wbGUuY29tIiwicm9sZSI6IkNVU1RPTUVSIiwiaWF0IjoxNzQ5MTA4MzkzLCJleHAiOjE3NDkxOTQ3OTN9.SgEFLcN2bjGgISg4GQb1eHmxrMUU7HYPHNgjuDnjFrI
-@adminToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDkxMDc4MTUsImV4cCI6MTc0OTE5NDIxNX0.AIX_-dxKNZSanzha-ipeLQjEMNja4a81CPgclR7U_6M
+@bearetoken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEzLCJlbWFpbCI6InRlc3Q2QGV4YW1wbGUuY29tIiwicm9sZSI6IkNVU1RPTUVSIiwiaWF0IjoxNzQ5NDgxODcyLCJleHAiOjE3NDk1NjgyNzJ9.iIa3ZDVgG8V2gF_3GfMCMKEaGW2SpgYK5jXvc4RE5a4
+
+@adminToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk0ODE4MjMsImV4cCI6MTc0OTU2ODIyM30.VtqEts3GMp_J-I-Iz8r7tZpQU7sWq5cpkQjzKczZo-8
 
 #########################################################################
                 AUTH ENDPOINTS
@@ -11,7 +12,7 @@ POST  {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-    "email": "test7@example.com",
+    "email": "rchlkvth@gmail.com",
     "password": "SecurePassword123!",
     "firstName": "Test",
     "lastName": "User"
@@ -22,7 +23,7 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-    "email": "test6@example.com",
+    "email": "rchlkvth@gmail.com",
     "password": "SecurePassword123!"
 }
 
@@ -35,19 +36,34 @@ Content-Type: application/json
     "password": "admin123"
 }
 
+### Request Password Reset
+POST {{baseUrl}}/auth/forgot-password
+Content-Type: application/json
 
+{
+    "email": "rchlkvth@gmail.com"
+}
+
+### Reset Password
+POST {{baseUrl}}/auth/reset-password
+Content-Type: application/json
+
+{
+    "token": "10a4825fbccb8a60ebd27a71b5c33bb6a2d7cd07d19aa1bff35a5406c269a70",
+    "password": "NewSecurePassword123!"
+}
 
 #########################################################################
                 USER ENDPOINTS
 ##########################################################################
 
 ### Get all users (ADMIN only)
-GET {{baseUrl}}/users
-Authorization: Bearer {{adminToken}}
+GET {{baseUrl}}/users/2
+Authorization: Bearer {{bearetoken}}
 
 ### Get all users with search and pagination (ADMIN only)
 GET {{baseUrl}}/users?search=oo&limit=5
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer {{bearetoken}}
 
 ### Get a specific user by ID (Authenticated user - their own or ADMIN/STAFF)
 GET {{baseUrl}}/users/4
