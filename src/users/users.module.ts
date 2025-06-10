@@ -7,6 +7,7 @@ import { PassportModule } from '@nestjs/passport';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { redisStore } from 'cache-manager-redis-store';
+import { CaslModule } from '../casl/casl.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { redisStore } from 'cache-manager-redis-store';
       }),
       inject: [ConfigService],
     }),
+    CaslModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],

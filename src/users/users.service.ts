@@ -3,11 +3,12 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository, FindManyOptions, Like } from 'typeorm';
-import { FindAllUsersDto, UserSortBy, SortOrder } from './dto/find-all-users.dto';
+import { Repository, FindManyOptions, Like, MoreThan, FindOptionsWhere } from 'typeorm';
+import { FindAllUsersDto, SortOrder, UserSortBy } from './dto/find-all-users.dto';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { instanceToPlain } from 'class-transformer';
 import { ApiResponse } from '../common/interfaces/api-response.interface';
+import { PaginationDto, PaginatedResponseDto } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class UsersService {
@@ -15,7 +16,43 @@ export class UsersService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-  ) {}
+  ) {
+    // Ensure the passwordResetToken and passwordResetExpires columns exist in the User entity
+    // This is a workaround for TypeORM not detecting the new columns immediately
+    const metadata = this.userRepository.metadata;
+    if (!metadata.findColumnWithPropertyName('passwordResetToken')) {
+      metadata.columns.push(
+        new (require('typeorm').ColumnMetadata)({
+          propertyName: 'passwordResetToken',
+          target: metadata.target,
+          propertyPath: 'passwordResetToken',
+          mode: 'regular',
+          options: { nullable: true },
+          type: 'varchar',
+          isNullable: true,
+          isGenerated: false,
+          isPrimary: false,
+          isUnique: false,
+        })
+      );
+    }
+    if (!metadata.findColumnWithPropertyName('passwordResetExpires')) {
+      metadata.columns.push(
+        new (require('typeorm').ColumnMetadata)({
+          propertyName: 'passwordResetExpires',
+          target: metadata.target,
+          propertyPath: 'passwordResetExpires',
+          mode: 'regular',
+          options: { nullable: true },
+          type: 'timestamp',
+          isNullable: true,
+          isGenerated: false,
+          isPrimary: false,
+          isUnique: false,
+        })
+      );
+    }
+  }
 
   async create(createUserDto: CreateUserDto): Promise<any> {
     const user = this.userRepository.create(createUserDto);
@@ -23,58 +60,76 @@ export class UsersService {
     return instanceToPlain(savedUser);
   }
 
-  async findAll(queryDto: FindAllUsersDto): Promise<any[]> {
-    const { search, role, sortBy, sortOrder, limit, offset } = queryDto;
-    const findOptions: FindManyOptions<User> = {
-      where: {},
-      order: {},
-      take: limit,
-      skip: offset,
+  async findAll(findAllUsersDto: FindAllUsersDto = {}): Promise<ApiResponse<User[]>> {
+    const { search, role } = findAllUsersDto;
+    
+    const options: FindManyOptions<User> = {
+      where: {}
     };
+
     if (search) {
-      findOptions.where = [
+      options.where = [
         { email: Like(`%${search}%`) },
         { firstName: Like(`%${search}%`) },
         { lastName: Like(`%${search}%`) },
       ];
     }
-    if (role) {
-      if (Array.isArray(findOptions.where)) {
-        findOptions.where = findOptions.where.map(condition => ({ ...condition, role: role }));
-      } else {
-        findOptions.where = { ...findOptions.where, role: role };
-      }
-    }
-    const whereIsEmpty = findOptions.where === undefined ||
-                         (Array.isArray(findOptions.where) && findOptions.where.length === 0) ||
-                         (!Array.isArray(findOptions.where) && Object.keys(findOptions.where).length === 0);
-    if (whereIsEmpty) {
-        delete findOptions.where;
-    }
-    // Use a cache key based on the query
-    const cacheKey = 'users';
-    console.log('Using cacheKey:', cacheKey);
 
-    let cachedUsers;
-    try {
-      cachedUsers = await this.cacheManager.get(cacheKey);
-      if (cachedUsers) {
-        console.log('Redis GET success: returning users from Redis for', cacheKey);
-        return cachedUsers;
+    if (role) {
+      if (Array.isArray(options.where)) {
+        options.where = options.where.map(where => ({ ...where, role }));
       } else {
-        console.log('Redis GET: cache miss, querying DB for', cacheKey);
+        (options.where as any).role = role;
       }
-    } catch (err) {
-      console.error('Redis GET failed:', err);
     }
-    const users = await this.userRepository.find(findOptions);
+    
     try {
-      await this.cacheManager.set(cacheKey, users.map(user => instanceToPlain(user)), 60);
-      console.log('Redis SET success: users cached for', cacheKey);
-    } catch (err) {
-      console.error('Redis SET failed:', err);
+      const users = await this.userRepository.find(options);
+      return { 
+        success: true, 
+        data: users,
+        message: 'Users retrieved successfully' 
+      };
+    } catch (error) {
+      console.error('Error finding users:', error);
+      throw error;
     }
-    return users.map(user => instanceToPlain(user));
+  }
+
+  /**
+   * Find all users with pagination
+   * @param pagination Pagination options (page, limit)
+   * @param filters Additional filters (search, role, etc.)
+   * @returns Paginated response of users
+   */
+  async findAllPaginated(
+    pagination: PaginationDto,
+    filters: Omit<FindAllUsersDto, 'page' | 'limit'> = {}
+  ): Promise<PaginatedResponseDto<User>> {
+    const { search, sortBy = 'createdAt', order = 'DESC', role } = filters;
+    
+    const where: FindOptionsWhere<User> | FindOptionsWhere<User>[] = {};
+    
+    if (search) {
+      where['$or'] = [
+        { email: Like(`%${search}%`) },
+        { firstName: Like(`%${search}%`) },
+        { lastName: Like(`%${search}%`) },
+      ];
+    }
+
+    if (role) {
+      where['role'] = role;
+    }
+
+    const [users, total] = await this.userRepository.findAndCount({
+      where,
+      order: { [sortBy]: order } as Record<string, 'ASC' | 'DESC'>,
+      skip: pagination.skip,
+      take: pagination.limit,
+    });
+
+    return new PaginatedResponseDto(users, total, pagination);
   }
 
   async findOne(id: number): Promise<any> {
@@ -91,6 +146,15 @@ export class UsersService {
 
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { email } });
+  }
+
+  async findByResetToken(token: string): Promise<User | null> {
+    return this.userRepository.findOne({ 
+      where: { 
+        passwordResetToken: token,
+        passwordResetExpires: MoreThan(new Date())
+      } 
+    });
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<ApiResponse> {

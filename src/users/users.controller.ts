@@ -6,13 +6,20 @@ import { jwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from 'src/common/enums/user-role.enum';
-import { FindAllUsersDto } from './dto/find-all-users.dto';
-import { ApiExtraModels, ApiBody, ApiBearerAuth, ApiTags, ApiQuery } from '@nestjs/swagger';
+import { FindAllUsersDto, FindAllUsersQueryDto, SortOrder } from './dto/find-all-users.dto';
+import { ApiExtraModels, ApiBody, ApiTags, ApiQuery, ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
+import { PoliciesGuard } from 'src/common/guards/policies.guard';
+import { CheckPolicies } from 'src/common/decorators/check-policies.decorator';
+import { Action } from 'src/casl/actions.enum';
+import { User } from './entities/user.entity';
+import { AppAbility } from 'src/casl/ability.factory';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginatedResponseDto } from '../common/dto/pagination.dto';
 
-@ApiTags('users')
+@ApiTags('Users')
 @ApiBearerAuth()
 @Controller('users')
-@UseGuards(jwtAuthGuard)
+@UseGuards(jwtAuthGuard, PoliciesGuard)
 @ApiExtraModels(UpdateUserDto)
 export class UsersController {
   constructor(
@@ -21,29 +28,16 @@ export class UsersController {
   ) {}
 
   @Get()
-  @ApiQuery({ name: 'search', required: false })
-  @ApiQuery({ name: 'role', required: false, enum: UserRole })
-  @ApiQuery({ name: 'sortBy', required: false })
-  @ApiQuery({ name: 'sortOrder', required: false, enum: ['ASC', 'DESC'] })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  @ApiQuery({ name: 'offset', required: false, type: Number })
-  async findAll(@Query() queryDto: FindAllUsersDto) {
-    // Generate cache key based on query parameters
-    const cacheKey = `users:${JSON.stringify(queryDto)}`;
+  @CheckPolicies((ability) => ability.can(Action.Read, User))
+  @ApiOkResponse({ description: 'List of users with pagination metadata' })
+  async findAll(@Query() queryDto: FindAllUsersQueryDto) {
+    // Always use pagination
+    const { page = 1, limit = 10, ...filters } = queryDto;
+    const pagination = new PaginationDto();
+    pagination.page = Number(page);
+    pagination.limit = Number(limit);
     
-    // Try to get from cache
-    const cachedData = await this.cacheManager.get(cacheKey);
-    if (cachedData) {
-      return cachedData;
-    }
-
-    // If not in cache, get from service
-    const result = await this.usersService.findAll(queryDto);
-    
-    // Cache the result
-    await this.cacheManager.set(cacheKey, result, 60000); // 60 seconds
-    
-    return result;
+    return this.usersService.findAllPaginated(pagination, filters);
   }
 
   @Get(':id')
@@ -52,14 +46,16 @@ export class UsersController {
   }
 
   @Patch(':id')
+  @CheckPolicies((ability: AppAbility) => ability.can(Action.Update, User))
   @ApiBody({ type: UpdateUserDto })
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
   }
+
+
   @Delete(':id')
   @HttpCode(200)
-  @UseGuards(jwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @CheckPolicies((ability: AppAbility) => ability.can(Action.Delete, User ))
   async remove(@Param('id') id: string) {
     try {
       const result = await this.usersService.remove(+id);
