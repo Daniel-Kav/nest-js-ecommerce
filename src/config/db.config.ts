@@ -5,16 +5,13 @@ dotenv.config();
 
 export const typeOrmConfig: TypeOrmModuleOptions = {
   type: 'postgres',
-  host: process.env.DATABASE_HOST,
+  host: process.env.DATABASE_HOST || 'postgres',
   port: parseInt(process.env.DATABASE_PORT ?? '5432', 10),
-  username: process.env.DATABASE_USERNAME,
-  password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE_NAME,
+  username: process.env.DATABASE_USERNAME || 'postgres',
+  password: process.env.DATABASE_PASSWORD || 'postgres',
+  database: process.env.DATABASE_NAME || 'ecommerce',
   autoLoadEntities: true,
   synchronize: true,
-  // configure SSL options
-  ssl: {
-    rejectUnauthorized: true, // set to true if you want to reject unauthorized connections
-  },
+  // ssl: true
 }; 
 
