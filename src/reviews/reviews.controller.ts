@@ -8,11 +8,10 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { jwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { Request } from 'express';
 import { FindAllReviewsDto } from './dto/find-all-reviews.dto';
-import { ApiExtraModels, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiExtraModels, ApiBody, ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Reviews')
 @Controller('reviews')
-// @ApiExtraModels(UpdateReviewDto)
-// @ApiBearerAuth()
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 

@@ -8,8 +8,9 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { Request } from 'express';
 import { Payment } from './entities/payment.entity';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Payments')
 @Controller('payments')
 @UseGuards(jwtAuthGuard)
 @ApiBearerAuth()
