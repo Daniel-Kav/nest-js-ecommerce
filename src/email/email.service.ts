@@ -68,6 +68,57 @@ export class EmailService {
     }
   }
 
+  async sendVerificationEmail(
+    email: string,
+    token: string,
+    name: string,
+  ): Promise<{ success: boolean; messageId?: string; previewUrl?: string; error?: string }> {
+    const verifyUrl = `${this.configService.get<string>('FRONTEND_URL', 'http://localhost:5000')}/verify-email?token=${token}`;
+    
+    try {
+      // In development, log the email instead of sending it
+      if (process.env.NODE_ENV !== 'production') {
+        this.logger.log(`[DEV] Would send verification email to: ${email}`);
+        this.logger.log(`[DEV] Verify URL: ${verifyUrl}`);
+        
+        // Return a mock response
+        return {
+          success: true,
+          messageId: `dev-${Date.now()}`,
+          previewUrl: `http://example.com/preview/${Date.now()}`
+        };
+      }
+      
+      // In production, send the actual email
+      const html = await this.renderTemplate('verify-email', {
+        name,
+        verifyUrl,
+      });
+
+      const mailOptions = {
+        from: this.configService.get<string>('EMAIL_FROM', 'noreply@example.com'),
+        to: email,
+        subject: 'Verify Your Email Address',
+        html,
+      };
+
+      const info = await this.transporter.sendMail(mailOptions);
+      this.logger.log(`Email sent: ${info.messageId}`);
+      
+      return {
+        success: true,
+        messageId: info.messageId,
+        previewUrl: info.accepted?.[0] ? `https://ethereal.email/message/${info.messageId}` : undefined
+      };
+    } catch (error) {
+      this.logger.error(`Failed to send verification email: ${error.message}`, error.stack);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
   async sendPasswordResetEmail(
     email: string,
     token: string,
