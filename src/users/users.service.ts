@@ -1,6 +1,7 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository, FindManyOptions, Like, MoreThan, FindOptionsWhere } from 'typeorm';
@@ -9,6 +10,9 @@ import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { instanceToPlain } from 'class-transformer';
 import { ApiResponse } from '../common/interfaces/api-response.interface';
 import { PaginationDto, PaginatedResponseDto } from '../common/dto/pagination.dto';
+import { EmailService } from '../email/email.service';
+import { v4 as uuidv4 } from 'uuid';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
@@ -16,6 +20,7 @@ export class UsersService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private readonly emailService: EmailService,
   ) {
     // Ensure the passwordResetToken and passwordResetExpires columns exist in the User entity
     // This is a workaround for TypeORM not detecting the new columns immediately
@@ -54,15 +59,58 @@ export class UsersService {
     }
   }
 
-  async create(createUserDto: CreateUserDto): Promise<any> {
+  async create(createUserDto: CreateUserDto): Promise<User> {
     const user = this.userRepository.create(createUserDto);
+    user.isEmailVerified = false;
+    user.emailVerificationToken = uuidv4();
+    
+    // Hash the password before saving
+    user.password = await bcrypt.hash(user.password, 10);
+    
+    // Log the verification token for testing
+    console.log('Email Verification Token:', user.emailVerificationToken);
+    
+    // Send verification email
+    const emailResult = await this.emailService.sendVerificationEmail(
+      user.email,
+      user.emailVerificationToken,
+      `${user.firstName} ${user.lastName}`
+    );
+    
+    if (!emailResult.success) {
+      throw new BadRequestException('Failed to send verification email');
+    }
+    
     const savedUser = await this.userRepository.save(user);
-    return instanceToPlain(savedUser);
+    return savedUser;
+  }
+
+  async verifyEmail(verifyEmailDto: VerifyEmailDto): Promise<ApiResponse> {
+    const user = await this.userRepository.findOne({
+      where: {
+        email: verifyEmailDto.email,
+        emailVerificationToken: verifyEmailDto.token,
+        isEmailVerified: false
+      }
+    });
+
+    if (!user) {
+      throw new BadRequestException('Invalid verification token or email. Please ensure:\n1. The token matches exactly what was sent to your email\n2. The email address is correct\n3. You haven\'t already verified your account');
+    }
+
+    user.isEmailVerified = true;
+    user.emailVerificationToken = null;
+    await this.userRepository.save(user);
+
+    return {
+      success: true,
+      message: 'Email verified successfully'
+    };
   }
 
   async findAll(findAllUsersDto: FindAllUsersDto = {}): Promise<ApiResponse<User[]>> {
     const { search, role } = findAllUsersDto;
-    
+
     const options: FindManyOptions<User> = {
       where: {}
     };
@@ -82,13 +130,13 @@ export class UsersService {
         (options.where as any).role = role;
       }
     }
-    
+
     try {
       const users = await this.userRepository.find(options);
-      return { 
-        success: true, 
+      return {
+        success: true,
         data: users,
-        message: 'Users retrieved successfully' 
+        message: 'Users retrieved successfully'
       };
     } catch (error) {
       console.error('Error finding users:', error);
@@ -107,9 +155,9 @@ export class UsersService {
     filters: Omit<FindAllUsersDto, 'page' | 'limit'> = {}
   ): Promise<PaginatedResponseDto<User>> {
     const { search, sortBy = 'createdAt', order = 'DESC', role } = filters;
-    
+
     const where: FindOptionsWhere<User> | FindOptionsWhere<User>[] = {};
-    
+
     if (search) {
       where['$or'] = [
         { email: Like(`%${search}%`) },
@@ -136,7 +184,7 @@ export class UsersService {
     await this.cacheManager.set('testkey', 'testvalue', 600);
     const testVal = await this.cacheManager.get('testkey');
     console.log('Test Redis value:', testVal);
-    
+
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
@@ -149,11 +197,11 @@ export class UsersService {
   }
 
   async findByResetToken(token: string): Promise<User | null> {
-    return this.userRepository.findOne({ 
-      where: { 
+    return this.userRepository.findOne({
+      where: {
         passwordResetToken: token,
         passwordResetExpires: MoreThan(new Date())
-      } 
+      }
     });
   }
 
@@ -176,14 +224,14 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
-    
+
     try {
       await this.userRepository.delete(id);
-      
+
       // Clear user from cache if it exists
       const cacheKey = 'users';
       await this.cacheManager.del(cacheKey);
-      
+
       return {
         success: true,
         message: 'User deleted successfully',

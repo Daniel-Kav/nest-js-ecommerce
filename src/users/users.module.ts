@@ -8,6 +8,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { redisStore } from 'cache-manager-redis-store';
 import { CaslModule } from '../casl/casl.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { CaslModule } from '../casl/casl.module';
       inject: [ConfigService],
     }),
     CaslModule,
+    EmailModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],
