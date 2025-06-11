@@ -1,22 +1,22 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Patch, 
-  Param, 
-  Delete, 
-  UseGuards, 
-  Req, 
-  Query, 
-  HttpStatus, 
-  HttpCode 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+  Query,
+  HttpStatus,
+  HttpCode
 } from '@nestjs/common';
-import { 
-  ApiTags, 
-  ApiOperation, 
-  ApiResponse, 
-  ApiBody, 
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
   ApiBearerAuth,
   ApiOkResponse,
   ApiCreatedResponse,
@@ -40,22 +40,21 @@ import { Product } from './entities/product.entity';
 // import { ApiExtraModels, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiTags('Products')
+@ApiBearerAuth()
 @Controller('products')
-@ApiBearerAuth('JWT-auth')
-@ApiResponse({ status: 500, description: 'Internal server error' })
 @UseGuards(jwtAuthGuard, RolesGuard)
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @Post()
   @Roles(UserRole.ADMIN, UserRole.STAFF)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new product' })
-  @ApiCreatedResponse({ 
+  @ApiCreatedResponse({
     description: 'Product successfully created',
     type: Product
   })
-  @ApiBadRequestResponse({ 
+  @ApiBadRequestResponse({
     description: 'Bad Request - Validation error',
     schema: {
       example: {
@@ -75,46 +74,46 @@ export class ProductsController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all products with optional filtering and pagination' })
-  @ApiQuery({ 
-    name: 'search', 
-    required: false, 
-    description: 'Search term to filter products by name or description' 
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    description: 'Search term to filter products by name or description'
   })
-  @ApiQuery({ 
-    name: 'categoryId', 
-    required: false, 
-    description: 'Filter products by category ID' 
+  @ApiQuery({
+    name: 'categoryId',
+    required: false,
+    description: 'Filter products by category ID'
   })
-  @ApiQuery({ 
-    name: 'minPrice', 
-    required: false, 
-    description: 'Minimum price filter' 
+  @ApiQuery({
+    name: 'minPrice',
+    required: false,
+    description: 'Minimum price filter'
   })
-  @ApiQuery({ 
-    name: 'maxPrice', 
-    required: false, 
-    description: 'Maximum price filter' 
+  @ApiQuery({
+    name: 'maxPrice',
+    required: false,
+    description: 'Maximum price filter'
   })
-  @ApiQuery({ 
-    name: 'sortBy', 
-    required: false, 
-    description: 'Field to sort by (e.g., name, price, createdAt)' 
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    description: 'Field to sort by (e.g., name, price, createdAt)'
   })
-  @ApiQuery({ 
-    name: 'sortOrder', 
-    required: false, 
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
     description: 'Sort order (ASC or DESC)',
     enum: ['ASC', 'DESC']
   })
-  @ApiQuery({ 
-    name: 'limit', 
-    required: false, 
-    description: 'Number of items per page' 
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Number of items per page'
   })
-  @ApiQuery({ 
-    name: 'offset', 
-    required: false, 
-    description: 'Number of items to skip' 
+  @ApiQuery({
+    name: 'offset',
+    required: false,
+    description: 'Number of items to skip'
   })
   @ApiOkResponse({
     description: 'List of products',
@@ -163,7 +162,7 @@ export class ProductsController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized - Invalid or missing JWT' })
   @ApiForbiddenResponse({ description: 'Forbidden - User does not have required role' })
   async update(
-    @Param('id') id: string, 
+    @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto
   ) {
     return this.productsService.update(+id, updateProductDto);
