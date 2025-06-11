@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, Us
 import { CacheKey, CacheTTL, Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 import { jwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
@@ -13,8 +14,7 @@ import { CheckPolicies } from 'src/common/decorators/check-policies.decorator';
 import { Action } from 'src/casl/actions.enum';
 import { User } from './entities/user.entity';
 import { AppAbility } from 'src/casl/ability.factory';
-import { PaginationDto } from '../common/dto/pagination.dto';
-import { PaginatedResponseDto } from '../common/dto/pagination.dto';
+import { PaginationDto, PaginatedResponseDto } from '../common/dto/pagination.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -25,7 +25,14 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache
-  ) {}
+  ) { }
+
+  @Post('verify-email')
+  @ApiBody({ type: VerifyEmailDto })
+  @ApiOkResponse({ description: 'Email verified successfully' })
+  async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
+    return this.usersService.verifyEmail(verifyEmailDto);
+  }
 
   @Get()
   @CheckPolicies((ability) => ability.can(Action.Read, User))
@@ -36,7 +43,7 @@ export class UsersController {
     const pagination = new PaginationDto();
     pagination.page = Number(page);
     pagination.limit = Number(limit);
-    
+
     return this.usersService.findAllPaginated(pagination, filters);
   }
 
@@ -55,7 +62,7 @@ export class UsersController {
 
   @Delete(':id')
   @HttpCode(200)
-  @CheckPolicies((ability: AppAbility) => ability.can(Action.Delete, User ))
+  @CheckPolicies((ability: AppAbility) => ability.can(Action.Delete, User))
   async remove(@Param('id') id: string) {
     try {
       const result = await this.usersService.remove(+id);

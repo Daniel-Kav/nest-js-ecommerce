@@ -11,12 +11,12 @@ import { FindAllReviewsDto } from './dto/find-all-reviews.dto';
 import { ApiExtraModels, ApiBody, ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Reviews')
+@ApiBearerAuth()
 @Controller('reviews')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
   @Post()
-  // @UseGuards(jwtAuthGuard)
   create(@Body() createReviewDto: CreateReviewDto, @Req() req: Request) {
     const userId = (req.user as any).id;
     return this.reviewsService.create(createReviewDto, userId);
