@@ -8,23 +8,51 @@
 ##########################################################################
 
 ### Register a new user
-POST  {{baseUrl}}/auth/register
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-    "email": "someemail1@gmail.com",
+    "email": "sample1@gmail.com",
     "password": "SecurePassword123!",
     "firstName": "Test",
     "lastName": "User"
 }
+
+### Login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "sample1@gmail.com",
+    "password": "SecurePassword123!"
+}
+
+### Verify Email
+POST {{baseUrl}}/auth/verify-email
+Content-Type: application/json
+
+{
+    "email": "sample1@gmail.com",
+    "token": "verification-token-here"
+}
+
+### Get current user profile
+GET {{baseUrl}}/users
+Authorization: Bearer {{bearetoken}}
+
+### Get all users (Admin only)
+GET {{baseUrl}}/users/10
+Authorization: Bearer {{adminToken}}
+
+### Note: The email verification token will be sent to the user's email after registration. Use the token from the email to verify the account.
 
 ### Login a user (Customer)
 POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-    "email": "rchlkvth@gmail.com",
-    "password": "NewSecurePassword123!"
+    "email": "sample1@gmail.com",
+    "password": "SecurePassword123!"
 }
 
 ### Login an Admin

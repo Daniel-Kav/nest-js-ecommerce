@@ -2,10 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import * as fs from 'fs';
+import * as path from 'path';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -50,14 +52,16 @@ async function bootstrap() {
   // Global Exception Filter
   app.useGlobalFilters(app.get(AllExceptionsFilter));
 
+  // Read API description from markdown file
+  const apiDescriptionPath = path.join(process.cwd(), 'docs', 'API_DESCRIPTION.md');
+  const apiDescription = fs.readFileSync(apiDescriptionPath, 'utf8');
+
   // API Documentation with Swagger
   const config = new DocumentBuilder()
     .addBearerAuth()
     .setTitle('E-Commerce REST API')
-    .setDescription('## Comprehensive API documentation for the E-Commerce platform\n\nThis API provides endpoints for managing products, categories, users, orders, payments, and more.\n\n### Authentication\nMost endpoints require authentication. Use the `/auth/login` endpoint to get a JWT token and include it in the `Authorization` header as `Bearer <token>.')
+    .setDescription(apiDescription)
     .setVersion('1.0')
-    // .addServer(process.env.API_URL || 'http://localhost:5000', 'Development server')
-    // .addBearerAuth()
     .addTag('Authentication', 'User authentication and registration')
     .addTag('Users', 'User management and profiles')
     .addTag('Products', 'Product catalog management')
