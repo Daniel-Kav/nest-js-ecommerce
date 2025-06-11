@@ -7,30 +7,30 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('Logger')
 @Controller('logger')
 export class LoggerController {
-  constructor(private readonly loggerService: LoggerService) {}
+  // constructor(private readonly loggerService: LoggerService) {}
 
-  @Post()
-  create(@Body() createLoggerDto: CreateLoggerDto) {
-    return this.loggerService.create(createLoggerDto);
-  }
+  // @Post()
+  // create(@Body() createLoggerDto: CreateLoggerDto) {
+  //   return this.loggerService.create(createLoggerDto);
+  // }
 
-  @Get()
-  findAll() {
-    return this.loggerService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.loggerService.findAll();
+  // }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.loggerService.findOne(+id);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.loggerService.findOne(+id);
+  // }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLoggerDto: UpdateLoggerDto) {
-    return this.loggerService.update(+id, updateLoggerDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateLoggerDto: UpdateLoggerDto) {
+  //   return this.loggerService.update(+id, updateLoggerDto);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.loggerService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.loggerService.remove(+id);
+  // }
 }
