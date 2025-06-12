@@ -1,17 +1,21 @@
+import { DataSource, DataSourceOptions } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
+import { join } from 'path';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import * as dotenv from 'dotenv';
 
-dotenv.config();
+const configService = new ConfigService();
 
-export const typeOrmConfig: TypeOrmModuleOptions = {
+const typeOrmConfig: TypeOrmModuleOptions = {
   type: 'postgres',
-  host: process.env.DATABASE_HOST || 'postgres',
-  port: parseInt(process.env.DATABASE_PORT ?? '5432', 10),
-  username: process.env.DATABASE_USERNAME || 'postgres',
-  password: process.env.DATABASE_PASSWORD || 'postgres',
-  database: process.env.DATABASE_NAME || 'ecommerce',
+  host: configService.get<string>('DB_HOST') || 'localhost',
+  port: parseInt(process.env.DB_PORT || '5432', 10),
+  username: configService.get<string>('DB_USER') || 'postgres',
+  password: configService.get<string>('DB_PASSWORD') || 'django1234',
+  database: configService.get<string>('DB_NAME') || 'postgres',
   autoLoadEntities: true,
-  synchronize: true,
-  // ssl: true
-}; 
+  synchronize: configService.get('NODE_ENV') === 'development',
+  logging: configService.get('NODE_ENV') === 'development',
+};
 
+
+export { typeOrmConfig };

@@ -64,8 +64,7 @@ export class UsersService {
     user.isEmailVerified = false;
     user.emailVerificationToken = uuidv4();
     
-    // Hash the password before saving
-    user.password = await bcrypt.hash(user.password, 10);
+    // Password will be hashed by the @BeforeInsert() hook in the User entity
     
     // Log the verification token for testing
     console.log('Email Verification Token:', user.emailVerificationToken);
@@ -86,21 +85,26 @@ export class UsersService {
   }
 
   async verifyEmail(verifyEmailDto: VerifyEmailDto): Promise<ApiResponse> {
-    const user = await this.userRepository.findOne({
-      where: {
-        email: verifyEmailDto.email,
-        emailVerificationToken: verifyEmailDto.token,
-        isEmailVerified: false
-      }
-    });
+    // First find the user with the raw query to bypass entity hooks
+    const users = await this.userRepository.query(
+      'SELECT * FROM users WHERE email = $1 AND "emailVerificationToken" = $2 AND "isEmailVerified" = false',
+      [verifyEmailDto.email, verifyEmailDto.token]
+    );
 
-    if (!user) {
+    if (!users || users.length === 0) {
       throw new BadRequestException('Invalid verification token or email. Please ensure:\n1. The token matches exactly what was sent to your email\n2. The email address is correct\n3. You haven\'t already verified your account');
     }
 
-    user.isEmailVerified = true;
-    user.emailVerificationToken = null;
-    await this.userRepository.save(user);
+    const user = users[0];
+    
+    // Use update with raw query to avoid triggering entity hooks
+    await this.userRepository.query(
+      'UPDATE users SET "isEmailVerified" = true, "emailVerificationToken" = NULL WHERE id = $1',
+      [user.id]
+    );
+
+    // Clear the user from cache if exists
+    await this.cacheManager.del(`users:detail:${user.id}`);
 
     return {
       success: true,
