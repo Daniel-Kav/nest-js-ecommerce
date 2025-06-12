@@ -22,29 +22,17 @@ import { EmailModule } from './email/email.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { CustomThrottlerGuard } from './common/guards/throttler.guard';
 import { throttlerConfig } from './config/throttler.config';
+import { RedisOptions } from './casl/subjects.enum';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(typeOrmConfig),
     ThrottlerModule.forRoot(throttlerConfig),
     AuthModule, UsersModule, ProductsModule, CategoriesModule, OrdersModule, PaymentsModule, CartModule, ReviewsModule,
-    CacheModule.registerAsync({
+    ConfigModule.forRoot({
       isGlobal: true,
-      useFactory: () => {
-        return {
-          ttl: 60000, // 60 sec: Cache time-to-live
-          stores: [
-            new Keyv({
-              store: new CacheableMemory({
-                ttl: 60000,
-                lruSize: 5000,
-              }),
-            }),
-            createKeyv('redis://default:123456789!@localhost:6379'),
-          ],
-        };
-      },
     }),
+    CacheModule.registerAsync(RedisOptions),
     LoggerModule,
     CaslModule,
     EmailModule,
