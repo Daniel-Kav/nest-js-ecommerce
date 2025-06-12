@@ -1,7 +1,7 @@
 @baseUrl = http://localhost:5000/api
 @bearetoken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk1NzE3MDYsImV4cCI6MTc0OTY1ODEwNn0.YZAhb8tmI72qJhOhnJaxAb-qERkuoxLNVdcEywSJb4I
 
-@adminToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk1NzE3MDYsImV4cCI6MTc0OTY1ODEwNn0.YZAhb8tmI72qJhOhnJaxAb-qERkuoxLNVdcEywSJb4I
+@adminToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk2NTg5ODYsImV4cCI6MTc0OTc0NTM4Nn0.3TZHZBCHB51P4mwwnN6qUIa3UwcMzDFXE7NN8P-gI4M
 
 #########################################################################
                 AUTH ENDPOINTS
@@ -32,16 +32,16 @@ POST {{baseUrl}}/auth/verify-email
 Content-Type: application/json
 
 {
-    "email": "sample1@gmail.com",
-    "token": "verification-token-here"
+    "email": "user5@example.com",
+    "token": "d4b0c0b9-0a87-4a6a-a292-95de80a6f2ca"
 }
 
 ### Get current user profile
 GET {{baseUrl}}/users
-Authorization: Bearer {{bearetoken}}
+Authorization: Bearer {{adminToken}}
 
 ### Get all users (Admin only)
-GET {{baseUrl}}/users/10
+GET {{baseUrl}}/users/3
 Authorization: Bearer {{adminToken}}
 
 ### Note: The email verification token will be sent to the user's email after registration. Use the token from the email to verify the account.
@@ -51,7 +51,7 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-    "email": "sample1@gmail.com",
+    "email": "user@example.com",
     "password": "SecurePassword123!"
 }
 
@@ -86,7 +86,8 @@ Content-Type: application/json
 ##########################################################################
 
 ### Get all users (ADMIN only)
-GET {{baseUrl}}/users
+
+GET {{baseUrl}}/users/test-cache
 Authorization: Bearer {{adminToken}}
 
 ### Get all users with search and pagination (ADMIN only)
@@ -94,7 +95,7 @@ GET {{baseUrl}}/users?search=oo&limit=5
 Authorization: Bearer {{adminToken}}
 
 ### Get a specific user by ID (Authenticated user - their own or ADMIN/STAFF)
-GET {{baseUrl}}/users/4
+GET {{baseUrl}}/users/3
 Authorization: Bearer {{adminToken}}
 
 ### Get a specific user by ID (ADMIN/STAFF accessing another user)
@@ -102,12 +103,12 @@ GET {{baseUrl}}/users/10
 Authorization: Bearer {{adminToken}}
 
 ### Update a user (Authenticated user - their own)
-PATCH   {{baseUrl}}/users/10
+PATCH   {{baseUrl}}/users/3
 Content-Type: application/json
 Authorization: Bearer {{adminToken}}
 
 {
-    "firstName": "UpdatedFirstName"
+    "role": "ADMIN"
 }
 
 ### Update a user (ADMIN/STAFF updating another user)

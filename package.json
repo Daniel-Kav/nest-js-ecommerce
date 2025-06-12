@@ -22,7 +22,23 @@
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "migration:generate": "pnpm typeorm migration:generate -d src/config/typeorm.config.ts",
     "migration:run": "pnpm typeorm migration:run -d src/config/typeorm.config.ts",
-    "migration:revert": "pnpm typeorm migration:revert -d src/config/typeorm.config.ts"
+    "migration:revert": "pnpm typeorm migration:revert -d src/config/typeorm.config.ts",
+    
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:restart": "docker-compose restart",
+    "docker:rebuild": "docker-compose down && docker-compose up -d --build",
+    "docker:shell": "docker-compose exec app sh",
+    "docker:db:shell": "docker-compose exec postgres psql -U postgres",
+    
+    "docker:prod:up": "docker-compose -f docker-compose.prod.yml up -d",
+    "docker:prod:down": "docker-compose -f docker-compose.prod.yml down",
+    "docker:prod:logs": "docker-compose -f docker-compose.prod.yml logs -f",
+    "docker:prod:restart": "docker-compose -f docker-compose.prod.yml restart",
+    "docker:prod:rebuild": "docker-compose -f docker-compose.prod.yml down && docker-compose -f docker-compose.prod.yml up -d --build",
+    "docker:prod:shell": "docker-compose -f docker-compose.prod.yml exec app sh",
+    "docker:prod:db:shell": "docker-compose -f docker-compose.prod.yml exec postgres psql -U postgres"
   },
   "dependencies": {
     "@casl/ability": "^6.7.3",
