@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:5000/api
-@bearetoken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk1NzE3MDYsImV4cCI6MTc0OTY1ODEwNn0.YZAhb8tmI72qJhOhnJaxAb-qERkuoxLNVdcEywSJb4I
+@bearetoken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI3LCJlbWFpbCI6InNhbXBsZTEwMEBnbWFpbC5jb20iLCJyb2xlIjoiQ1VTVE9NRVIiLCJpYXQiOjE3NDk3MTY1NjUsImV4cCI6MTc0OTgwMjk2NX0.SWcs4pxV_WXWq69hlxuP43fi8GQ74fBQ1hk6jr3-fgA
 
 @adminToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk2NTg5ODYsImV4cCI6MTc0OTc0NTM4Nn0.3TZHZBCHB51P4mwwnN6qUIa3UwcMzDFXE7NN8P-gI4M
 
@@ -12,8 +12,8 @@ POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-    "email": "sample1@gmail.com",
-    "password": "SecurePassword123!",
+    "email": "sample2@gmail.com",
+    "password": "password123",
     "firstName": "Test",
     "lastName": "User"
 }
@@ -23,37 +23,21 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-    "email": "sample1@gmail.com",
-    "password": "SecurePassword123!"
+    "email": "sample2@gmail.com",
+    "password": "NewSecurePassword123!"
 }
 
 ### Verify Email
-POST {{baseUrl}}/auth/verify-email
+###
+POST {{baseUrl}}/users/verify-email
+Authorization: Bearer {{bearetoken}}
 Content-Type: application/json
 
 {
-    "email": "user5@example.com",
-    "token": "d4b0c0b9-0a87-4a6a-a292-95de80a6f2ca"
+    "email": "sample2@gmail.com",
+    "token": "f3a2ca9d-c119-4e0d-9d90-fcad4e1138d8"
 }
 
-### Get current user profile
-GET {{baseUrl}}/users
-Authorization: Bearer {{adminToken}}
-
-### Get all users (Admin only)
-GET {{baseUrl}}/users/3
-Authorization: Bearer {{adminToken}}
-
-### Note: The email verification token will be sent to the user's email after registration. Use the token from the email to verify the account.
-
-### Login a user (Customer)
-POST {{baseUrl}}/auth/login
-Content-Type: application/json
-
-{
-    "email": "user@example.com",
-    "password": "SecurePassword123!"
-}
 
 ### Login an Admin
 POST {{baseUrl}}/auth/login
@@ -69,7 +53,7 @@ POST {{baseUrl}}/auth/forgot-password
 Content-Type: application/json
 
 {
-    "email": "rchlkvth@gmail.com"
+    "email": "sample2@gmail.com"
 }
 
 ### Reset Password
@@ -77,7 +61,7 @@ POST {{baseUrl}}/auth/reset-password
 Content-Type: application/json
 
 {
-    "token": "6e076d1fbd98ddbb9f5b278e5135d88fcf023fc68e514a72e47376c7e844043c",
+    "token": "64ccb7d9913dfd68b0c6a6b58a2c330d8d154ef31ca934d02b48c7c705f73f13",
     "password": "NewSecurePassword123!"
 }
 
