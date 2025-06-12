@@ -1,39 +1,66 @@
 # Dependencies
 node_modules
-npm-debug.log
-yarn-debug.log
-yarn-error.log
 
-# Build output
+# Build outputs
 dist
 build
-
-# Environment variables
-.env
-.env.*
-
-# Version control
-.git
-.gitignore
-
-# IDE files
-.idea
-.vscode
-*.swp
-*.swo
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Docker files
-Dockerfile
-docker-compose.yml
-.dockerignore
-
-# Test coverage
 coverage
 
 # Logs
 logs
-*.log 
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Test files
+test
+__tests__
+*.test.*
+*.spec.*
+
+# Misc
+.cache
+.nyc_output
+.nyc_output/
+coverage/
+*.tsbuildinfo
+
+# Local development
+.dockerignore
+Dockerfile
+docker-compose*.yml
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
