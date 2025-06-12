@@ -21,11 +21,15 @@ RUN pnpm install --frozen-lockfile
 # Copy the rest of the application
 COPY . .
 
-# Expose port
+# ✅ Build the application to create /app/dist
+RUN pnpm build
+
+# Expose port (optional for dev containers)
 EXPOSE 5000
 
 # Start the application in development mode
 CMD ["pnpm", "run", "start:dev"]
+
 
 # ========================================
 # Production Build Stage
@@ -44,7 +48,7 @@ COPY package.json pnpm-lock.yaml ./
 # Install production dependencies only
 RUN pnpm install --frozen-lockfile --prod
 
-# Copy built application
+# ✅ Copy the built app from development stage
 COPY --from=development /app/dist ./dist
 
 # Set environment to production
