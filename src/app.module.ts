@@ -22,7 +22,7 @@ import { EmailModule } from './email/email.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { CustomThrottlerGuard } from './common/guards/throttler.guard';
 import { throttlerConfig } from './config/throttler.config';
-import { RedisOptions } from './casl/subjects.enum';
+import { RedisOptions } from './config/redis.config';
 
 @Module({
   imports: [
