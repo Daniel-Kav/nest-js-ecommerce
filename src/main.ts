@@ -42,7 +42,6 @@ async function bootstrap() {
   // Global Validation Pipe
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
-    // forbidNonWhitelisted: true, 
     transform: true,
   }));
 
@@ -85,7 +84,7 @@ async function bootstrap() {
   const apiBaseUrl =`http://localhost:${process.env.PORT || 5000}`;
   
   // Customize Swagger UI
-  SwaggerModule.setup('api', app, document, {
+  SwaggerModule.setup('', app, document, {
     customSiteTitle: 'E-Commerce API Documentation',
     customfavIcon: '/favicon.ico',
     customCss: `
