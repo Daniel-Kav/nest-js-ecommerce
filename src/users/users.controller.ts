@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, UseInterceptors, Inject, NotFoundException, HttpCode } from '@nestjs/common';
-import { CacheKey, CacheTTL, Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { CacheKey, CacheTTL, Cache, CACHE_MANAGER, CacheInterceptor } from '@nestjs/cache-manager';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
@@ -17,6 +17,7 @@ import { AppAbility } from 'src/casl/ability.factory';
 import { PaginationDto, PaginatedResponseDto } from '../common/dto/pagination.dto';
 
 @ApiTags('Users')
+@UseInterceptors(CacheInterceptor)
 @ApiBearerAuth()
 @Controller('users')
 @UseGuards(jwtAuthGuard, PoliciesGuard)
@@ -34,6 +35,11 @@ export class UsersController {
     return this.usersService.verifyEmail(verifyEmailDto);
   }
 
+  @Get('test-cache')
+  async testCache() {
+    return await this.usersService.testCache();
+  }
+
   @Get()
   @CheckPolicies((ability) => ability.can(Action.Read, User))
   @ApiOkResponse({ description: 'List of users with pagination metadata' })
@@ -46,7 +52,8 @@ export class UsersController {
 
     return this.usersService.findAllPaginated(pagination, filters);
   }
-
+  @CacheTTL(60000)
+  @CacheKey('user-details')
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(+id);

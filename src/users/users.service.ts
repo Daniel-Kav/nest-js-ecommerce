@@ -170,6 +170,16 @@ export class UsersService {
       where['role'] = role;
     }
 
+    // Create a cache key based on the route and query params
+    const cacheKey = `users:list:${JSON.stringify({ pagination, filters })}`;
+    const cacheTTL = 180; // 3 minutes
+    let cachedResult = await this.cacheManager.get<PaginatedResponseDto<User>>(cacheKey);
+    if (cachedResult) {
+      console.log(`[CACHE HIT] User list from cache for key: ${cacheKey}`);
+      console.log(`[CACHE GOT] Returning user list from cache for key: ${cacheKey}`);
+      return cachedResult;
+    }
+    console.log(`[CACHE MISS] Fetching user list from DB for key: ${cacheKey}`);
     const [users, total] = await this.userRepository.findAndCount({
       where,
       order: { [sortBy]: order } as Record<string, 'ASC' | 'DESC'>,
@@ -177,19 +187,30 @@ export class UsersService {
       take: pagination.limit,
     });
 
-    return new PaginatedResponseDto(users, total, pagination);
+    const result = new PaginatedResponseDto(users, total, pagination);
+    await this.cacheManager.set(cacheKey, result, cacheTTL);
+    console.log(`[CACHE SET] User list cached for key: ${cacheKey}`);
+    return result;
   }
 
   async findOne(id: number): Promise<any> {
-    await this.cacheManager.set('testkey', 'testvalue', 600);
-    const testVal = await this.cacheManager.get('testkey');
-    console.log('Test Redis value:', testVal);
-
+    const cacheKey = `users:detail:${id}`;
+    const cacheTTL = 180; // 3 minutes
+    let cachedUser = await this.cacheManager.get<any>(cacheKey);
+    // if (cachedUser) {
+    //   console.log(`[CACHE HIT] User detail from cache for key: ${cacheKey}`);
+    //   console.log(`[CACHE GOT] Returning user detail from cache for key: ${cacheKey}`);
+    //   return cachedUser;
+    // }
+    console.log(`[CACHE MISS] Fetching user detail from DB for key: ${cacheKey}`);
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
-    return instanceToPlain(user);
+    const plainUser = instanceToPlain(user);
+    await this.cacheManager.set(cacheKey, plainUser, cacheTTL);
+    console.log(`[CACHE SET] User detail cached for key: ${cacheKey}`);
+    return plainUser;
   }
 
   async findByEmail(email: string): Promise<User | null> {
@@ -214,11 +235,16 @@ export class UsersService {
       };
     }
     await this.userRepository.update(id, updateUserDto);
+    // Invalidate user detail and list cache
+    await this.cacheManager.del(`users:detail:${id}`);
+    // Optionally, clear all list caches (could be improved with a pattern if supported)
+    // await this.cacheManager.reset();
     return {
       success: true,
       message: 'User updated successfully'
     };
   }
+
   async remove(id: number): Promise<ApiResponse> {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
@@ -227,11 +253,10 @@ export class UsersService {
 
     try {
       await this.userRepository.delete(id);
-
-      // Clear user from cache if it exists
-      const cacheKey = 'users';
-      await this.cacheManager.del(cacheKey);
-
+      // Invalidate user detail and list cache
+      await this.cacheManager.del(`users:detail:${id}`);
+      // Optionally, clear all list caches (could be improved with a pattern if supported)
+      // await this.cacheManager.reset();
       return {
         success: true,
         message: 'User deleted successfully',
@@ -242,6 +267,29 @@ export class UsersService {
         success: false,
         message: 'Failed to delete user',
       };
+    }
+  }
+
+  /**
+   * Test Redis cache connection by setting and getting a test value with 5 min TTL
+   */
+  async testCache(): Promise<{ success: boolean; message: string }> {
+    const testKey = 'test:redis:connection';
+    const testValue = { time: new Date().toISOString(), message: 'Hello from Redis!' };
+    try {
+      await this.cacheManager.set(testKey, testValue, 300); // 5 minutes TTL
+      console.log(`[REDIS TEST] Set key '${testKey}' with value:`, testValue);
+    } catch (err) {
+      console.error(`[REDIS TEST ERROR] Error setting key '${testKey}':`, err);
+      return { success: false, message: `Error setting key: ${err.message}` };
+    }
+    try {
+      const value = await this.cacheManager.get(testKey);
+      console.log(`[REDIS TEST] Got value for key '${testKey}':`, value);
+      return { success: true, message: `Successfully set and got key '${testKey}' with 5 min TTL.` };
+    } catch (err) {
+      console.error(`[REDIS TEST ERROR] Error getting key '${testKey}':`, err);
+      return { success: false, message: `Error getting key: ${err.message}` };
     }
   }
 }

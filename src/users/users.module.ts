@@ -14,15 +14,15 @@ import { EmailModule } from '../email/email.module';
   imports: [
     TypeOrmModule.forFeature([User]),
     PassportModule,
-    CacheModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        store: redisStore,
-        host: configService.get<string>('REDIS_HOST') || 'localhost',
-        port: configService.get<number>('REDIS_PORT') || 6379,
-      }),
-      inject: [ConfigService],
-    }),
+    // CacheModule.registerAsync({
+    //   imports: [ConfigModule],
+    //   useFactory: async (configService: ConfigService) => ({
+    //     store: redisStore,
+    //     host: configService.get<string>('REDIS_HOST') || 'localhost',
+    //     port: configService.get<number>('REDIS_PORT') || 6379,
+    //   }),
+    //   inject: [ConfigService],
+    // }),
     CaslModule,
     EmailModule,
   ],
