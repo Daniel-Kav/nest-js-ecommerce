@@ -22,9 +22,28 @@ export const RedisOptions: CacheModuleAsyncOptions = {
         host,
         port,
         tls: true,
+        reconnectStrategy: (retries) => {
+          if (retries > 10) {
+            console.error('Redis connection failed after 10 retries');
+            return new Error('Redis connection failed');
+          }
+          return Math.min(retries * 100, 3000);
+        },
+        keepAlive: 10000,
+        connectTimeout: 10000,
       },
       password,
       ttl: 60 * 60 * 24, // 1 day
+      retryStrategy: (retries) => {
+        if (retries > 10) {
+          console.error('Redis operation failed after 10 retries');
+          return new Error('Redis operation failed');
+        }
+        return Math.min(retries * 100, 3000);
+      },
+      maxRetriesPerRequest: 3,
+      enableReadyCheck: true,
+      enableOfflineQueue: true,
     });
 
     return {
