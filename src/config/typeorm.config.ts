@@ -7,6 +7,7 @@ import { join } from 'path';
 config();
 
 const configService = new ConfigService();
+const isProduction = configService.get('NODE_ENV') === 'production';
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
@@ -18,10 +19,12 @@ export const dataSourceOptions: DataSourceOptions = {
   entities: [join(__dirname, '../../**/*.entity{.ts,.js}')],
   migrations: [join(__dirname, '../../migrations/*{.ts,.js}')],
   synchronize: false,
-  logging: configService.get('NODE_ENV') === 'development',
-  ssl: configService.get('NODE_ENV') === 'production' ? {
-    rejectUnauthorized: false
-  } : false,
+  logging: !isProduction,
+  extra: isProduction ? {
+    ssl: {
+      rejectUnauthorized: false
+    }
+  } : {}
 };
 
 const dataSource = new DataSource(dataSourceOptions);

@@ -15,6 +15,11 @@ const typeOrmConfig: TypeOrmModuleOptions = {
   autoLoadEntities: true,
   synchronize: configService.get('NODE_ENV') === 'development',
   logging: configService.get('NODE_ENV') === 'development',
+  extra: configService.get('NODE_ENV') === 'production' ? {
+    ssl: {
+      rejectUnauthorized: false
+    }
+  } : {}
 };
 
 
