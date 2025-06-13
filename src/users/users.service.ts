@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
@@ -6,16 +6,20 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository, FindManyOptions, Like, MoreThan, FindOptionsWhere } from 'typeorm';
 import { FindAllUsersDto, SortOrder, UserSortBy } from './dto/find-all-users.dto';
-import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
-import { instanceToPlain } from 'class-transformer';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { EmailService } from 'src/email/email.service';
+import { UserRole } from 'src/common/enums/user-role.enum';
 import { ApiResponse } from '../common/interfaces/api-response.interface';
 import { PaginationDto, PaginatedResponseDto } from '../common/dto/pagination.dto';
-import { EmailService } from '../email/email.service';
 import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcryptjs';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     @InjectRepository(User)
@@ -60,28 +64,40 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const user = this.userRepository.create(createUserDto);
+    // Set default role if not provided
+    const userData = {
+      ...createUserDto,
+      role: createUserDto.role || UserRole.CUSTOMER
+    };
+    
+    const user = this.userRepository.create(userData);
     user.isEmailVerified = false;
     user.emailVerificationToken = uuidv4();
     
     // Password will be hashed by the @BeforeInsert() hook in the User entity
     
     // Log the verification token for testing
-    console.log('Email Verification Token:', user.emailVerificationToken);
+    this.logger.log(`Creating user with email: ${user.email}`);
     
-    // Send verification email
-    const emailResult = await this.emailService.sendVerificationEmail(
-      user.email,
-      user.emailVerificationToken,
-      `${user.firstName} ${user.lastName}`
-    );
-    
-    if (!emailResult.success) {
-      throw new BadRequestException('Failed to send verification email');
+    try {
+      // Send verification email
+      const emailResult = await this.emailService.sendVerificationEmail(
+        user.email,
+        user.emailVerificationToken,
+        `${user.firstName} ${user.lastName}`
+      );
+      
+      if (!emailResult.success) {
+        throw new BadRequestException('Failed to send verification email');
+      }
+      
+      const savedUser = await this.userRepository.save(user);
+      this.logger.log(`User created successfully with ID: ${savedUser.id}`);
+      return savedUser;
+    } catch (error) {
+      this.logger.error(`Error creating user: ${error.message}`, error.stack);
+      throw error;
     }
-    
-    const savedUser = await this.userRepository.save(user);
-    return savedUser;
   }
 
   async verifyEmail(verifyEmailDto: VerifyEmailDto): Promise<ApiResponse> {
@@ -197,24 +213,31 @@ export class UsersService {
     return result;
   }
 
-  async findOne(id: number): Promise<any> {
+  async findOne(id: number): Promise<Record<string, any>> {
     const cacheKey = `users:detail:${id}`;
-    const cacheTTL = 180; // 3 minutes
-    let cachedUser = await this.cacheManager.get<any>(cacheKey);
-    // if (cachedUser) {
-    //   console.log(`[CACHE HIT] User detail from cache for key: ${cacheKey}`);
-    //   console.log(`[CACHE GOT] Returning user detail from cache for key: ${cacheKey}`);
-    //   return cachedUser;
-    // }
-    console.log(`[CACHE MISS] Fetching user detail from DB for key: ${cacheKey}`);
+    const cacheTTL = 5 * 60 * 1000; // 5 minutes
+    
+    // Check cache first
+    const cachedUser = await this.cacheManager.get<Record<string, any>>(cacheKey);
+    if (cachedUser) {
+      this.logger.log(`[CACHE HIT] User detail from cache for key: ${cacheKey}`);
+      return cachedUser;
+    }
+    
+    this.logger.log(`[CACHE MISS] Fetching user detail from DB for key: ${cacheKey}`);
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
+    
+    // Convert to plain object and remove sensitive data
     const plainUser = instanceToPlain(user);
+    
+    // Cache the user data
     await this.cacheManager.set(cacheKey, plainUser, cacheTTL);
-    console.log(`[CACHE SET] User detail cached for key: ${cacheKey}`);
-    return plainUser;
+    this.logger.log(`[CACHE SET] User detail cached for key: ${cacheKey}`);
+    
+    return plainUser as Record<string, any>;
   }
 
   async findByEmail(email: string): Promise<User | null> {
@@ -238,11 +261,25 @@ export class UsersService {
         message: `User with ID ${id} not found`
       };
     }
+    
+    // If updating password, we need to ensure it's hashed
+    if (updateUserDto.password) {
+      const salt = await bcrypt.genSalt();
+      updateUserDto.password = await bcrypt.hash(updateUserDto.password, salt);
+    }
+    
+    // Update the user
     await this.userRepository.update(id, updateUserDto);
-    // Invalidate user detail and list cache
+    
+    // Invalidate user detail cache
     await this.cacheManager.del(`users:detail:${id}`);
-    // Optionally, clear all list caches (could be improved with a pattern if supported)
-    // await this.cacheManager.reset();
+    
+    // If updating email or other critical fields, you might want to invalidate more caches
+    if (updateUserDto.email) {
+      // Invalidate any caches that might be using the old email
+      await this.cacheManager.del(`users:email:${user.email}`);
+    }
+    
     return {
       success: true,
       message: 'User updated successfully'
