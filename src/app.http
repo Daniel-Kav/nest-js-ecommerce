@@ -1,7 +1,9 @@
 @baseUrl = http://localhost:5000/api
+@deployed=https://nest-js-ecommerce.onrender.com/api
+###
 @bearetoken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI3LCJlbWFpbCI6InNhbXBsZTEwMEBnbWFpbC5jb20iLCJyb2xlIjoiQ1VTVE9NRVIiLCJpYXQiOjE3NDk3MTY1NjUsImV4cCI6MTc0OTgwMjk2NX0.SWcs4pxV_WXWq69hlxuP43fi8GQ74fBQ1hk6jr3-fgA
 
-@adminToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk2NTg5ODYsImV4cCI6MTc0OTc0NTM4Nn0.3TZHZBCHB51P4mwwnN6qUIa3UwcMzDFXE7NN8P-gI4M
+@adminToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk3NDg1NjIsImV4cCI6MTc0OTgzNDk2Mn0.uu0TRaTbJ62VQHQPq9lGzjDbUnZnGTQf93fVfUkCs8A
 
 #########################################################################
                 AUTH ENDPOINTS
@@ -12,7 +14,7 @@ POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-    "email": "sample2@gmail.com",
+    "email": "sample11@gmail.com",
     "password": "password123",
     "firstName": "Test",
     "lastName": "User"
@@ -23,7 +25,7 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-    "email": "sample2@gmail.com",
+    "email": "sample11@gmail.com",
     "password": "NewSecurePassword123!"
 }
 
@@ -34,8 +36,8 @@ Authorization: Bearer {{bearetoken}}
 Content-Type: application/json
 
 {
-    "email": "sample2@gmail.com",
-    "token": "f3a2ca9d-c119-4e0d-9d90-fcad4e1138d8"
+    "email": "sample11@gmail.com",
+    "token": "72e97495-d0d2-438a-8613-981c31661520"
 }
 
 
@@ -53,7 +55,7 @@ POST {{baseUrl}}/auth/forgot-password
 Content-Type: application/json
 
 {
-    "email": "sample2@gmail.com"
+    "email": "sample11@gmail.com"
 }
 
 ### Reset Password
@@ -61,7 +63,7 @@ POST {{baseUrl}}/auth/reset-password
 Content-Type: application/json
 
 {
-    "token": "64ccb7d9913dfd68b0c6a6b58a2c330d8d154ef31ca934d02b48c7c705f73f13",
+    "token": "4dba7ecd6037d4ec608ad2d70acb2e3417fdfb035f3661bc6d64ea089642ca95",
     "password": "NewSecurePassword123!"
 }
 
@@ -75,7 +77,7 @@ GET {{baseUrl}}/users/test-cache
 Authorization: Bearer {{adminToken}}
 
 ### Get all users with search and pagination (ADMIN only)
-GET {{baseUrl}}/users?search=oo&limit=5
+GET {{baseUrl}}/users
 Authorization: Bearer {{adminToken}}
 
 ### Get a specific user by ID (Authenticated user - their own or ADMIN/STAFF)
@@ -117,7 +119,7 @@ GET {{baseUrl}}/reviews
 Authorization: Bearer {{adminToken}}
 
 ### Get all reviews with search and filtering (ADMIN only)
-GET {{baseUrl}}/reviews?search=great&productId=1&minRating=4
+GET {{baseUrl}}/reviews?sear&minRating=2
 Authorization: Bearer {{adminToken}}
 
 ### Get a specific review by ID

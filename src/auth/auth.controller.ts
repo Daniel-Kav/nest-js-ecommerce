@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpCode, HttpStatus, UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
 import { 
   ApiTags, 
   ApiOperation, 
@@ -9,17 +9,22 @@ import {
   ApiCreatedResponse,
   ApiBadRequestResponse,
   ApiUnauthorizedResponse,
-  ApiNotFoundResponse
+  ApiNotFoundResponse,
+  ApiExtraModels
 } from '@nestjs/swagger';
+import { plainToClass } from 'class-transformer';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/register-auth.dto';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { UserResponseDto, UserWithTokenResponseDto } from 'src/users/dto/user-response.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
+@UseInterceptors(ClassSerializerInterceptor)
 @ApiResponse({ status: 500, description: 'Internal server error' })
+@ApiExtraModels(UserResponseDto, UserWithTokenResponseDto)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -28,18 +33,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Register a new user' })
   @ApiCreatedResponse({ 
     description: 'User successfully registered',
-    schema: {
-      example: {
-        user: {
-          id: 1,
-          email: 'user@example.com',
-          firstName: 'John',
-          lastName: 'Doe',
-          role: 'CUSTOMER'
-        },
-        token: 'jwt.token.here'
-      }
-    }
+    type: UserWithTokenResponseDto
   })
   @ApiBadRequestResponse({ 
     description: 'Bad Request - Validation error',
@@ -53,28 +47,21 @@ export class AuthController {
   })
   @ApiBody({ type: CreateAuthDto })
   async register(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.register(createAuthDto);
+    const result = await this.authService.register(createAuthDto);
+    return plainToClass(UserWithTokenResponseDto, {
+      ...result.user,
+      accessToken: result.token,
+      refreshToken: '' // Refresh token is not generated during registration
+    }, { excludeExtraneousValues: true });
   }
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'User login' })
-  @ApiOkResponse({
+  @ApiOkResponse({ 
     description: 'User successfully logged in',
-    schema: {
-      example: {
-        user: {
-          id: 1,
-          email: 'user@example.com',
-          firstName: 'John',
-          lastName: 'Doe',
-          role: 'CUSTOMER'
-        },
-        access_token: 'jwt.token.here',
-        refresh_token: 'refresh.token.here'
-      }
-    }
+    type: UserWithTokenResponseDto
   })
-  @ApiUnauthorizedResponse({
+  @ApiUnauthorizedResponse({ 
     description: 'Unauthorized - Invalid credentials',
     schema: {
       example: {
@@ -85,8 +72,13 @@ export class AuthController {
     }
   })
   @ApiBody({ type: LoginUserDto })
-  async login(@Body() loginDto: LoginUserDto) {
-    return this.authService.login(loginDto);
+  async login(@Body() loginUserDto: LoginUserDto) {
+    const result = await this.authService.login(loginUserDto);
+    return plainToClass(UserWithTokenResponseDto, {
+      ...result.user,
+      accessToken: result.access_token,
+      refreshToken: result.refresh_token
+    }, { excludeExtraneousValues: true });
   }
 
   @Post('forgot-password')
